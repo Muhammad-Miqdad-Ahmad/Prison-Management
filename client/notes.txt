@@ -1,0 +1,4 @@
+prisoner => needs and ID and name to visualize his/her data
+user => needs to give his name and prisoner ID to do whatever
+admin => needs to give an email and password
+guard => needs to give email and password
