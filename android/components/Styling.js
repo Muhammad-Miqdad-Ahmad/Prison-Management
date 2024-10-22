@@ -112,3 +112,26 @@ export const LoginStyles = StyleSheet.create({
     border: "black",
   },
 });
+
+export const Splash = StyleSheet.create({
+  center: {
+    height: "100%",
+    width: "100%",
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  card: {
+    backgroundColor: "white",
+    borderRadius: 30,
+    shadowColor: "black",
+    position: "absolute",
+    height: "50%",
+    width: "75%",
+    elevation: 20,
+  },
+  text: {
+    fontSize: 50,
+    fontFamily: "serif",
+  },
+});
