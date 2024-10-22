@@ -1,5 +1,4 @@
 import {
-    StyleSheet,
     Text,
     View,
     BackHandler,
