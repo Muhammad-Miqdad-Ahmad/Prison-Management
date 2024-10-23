@@ -1,4 +1,4 @@
-import { centre, ToDoManagerStyles } from "./Styling";
+import { centre, ToDoManagerStyles } from "../Styles/Styling";
 import { View, Text, Pressable, Alert, BackHandler } from "react-native";
 
 export const deletetask = (tasks, index, setTasks) => {
@@ -44,19 +44,14 @@ export const onBackPress = () => {
   return true;
 };
 
-export const postData = async (data, route, navigation, setIsLoading) => {
+export const postData = async (data, navigation, setIsLoading) => {
   const body = {};
   setIsLoading(true);
-  if (route === "SignUp") {
-    body["userName"] = data.user_name;
-    body["userEmail"] = data.email;
-    body["userPassword"] = data.password;
-  } else if (route === "Login") {
-    body["userEmail"] = data.email;
-    body["userPassword"] = data.password;
-  }
 
-  const root = `http://192.168.168.167:9000/app/${route}`;
+  body["userEmail"] = data.email;
+  body["userPassword"] = data.password;
+
+  const root = `http://192.168.168.167:9000/app/`;
 
   console.log("Data being sent to the back end: ", body);
   console.log(root);
@@ -66,7 +61,9 @@ export const postData = async (data, route, navigation, setIsLoading) => {
       "CONTENT-TYPE": "application/json",
     },
     body: JSON.stringify(body),
-  }).catch((error) => console.log(error)).finally(()=>setIsLoading(false));
+  })
+    .catch((error) => console.log(error))
+    .finally(() => setIsLoading(false));
   console.log("After fetch");
   console.log(response.status);
   if (response.status === 200) {

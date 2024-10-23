@@ -1,5 +1,5 @@
 import React, {Suspense} from "react";
-import StartScreen from "./components/StartScreen";
+import StartScreen from "./components/Pages/StartScreen.js";
 
 export default function App() {
 

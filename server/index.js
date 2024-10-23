@@ -12,7 +12,7 @@ const app = express();
 app.use(express.json());
 
 app.use("guard/", GuardRouter);
-app.use("admin/", AdminRouter);
+app.use("/admin", AdminRouter);
 app.use("visitor/", VisitorRouter);
 app.use("prisoner/", PrisonerRouter);
 
@@ -22,6 +22,6 @@ base.connect((err) => {
     console.error(err);
   } else {
     console.log("data base is horny 😈");
-    app.listen(process.env.PORT, console.log("Server is wet 💦"));
+    app.listen(process.env.PORT, console.log(`Server is wet 💦 ${process.env.PORT}%`));
   }
 });

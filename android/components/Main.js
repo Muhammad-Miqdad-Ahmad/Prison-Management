@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import LoginPage from "./LoginPage";
+import LoginPage from "./Pages/LoginPage";
 
 export default function App() {
   const Stack = createNativeStackNavigator();

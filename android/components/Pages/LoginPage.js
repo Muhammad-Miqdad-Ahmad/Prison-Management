@@ -10,13 +10,12 @@ import {
   ScrollView,
 } from "react-native";
 import React from "react";
-import { LoginStyles, centre } from "./Styling";
-import { onBackPress, postData } from "./Functions";
+import { LoginStyles, centre } from "../Styles/Styling";
+import { onBackPress, postData } from "../Functions/Functions";
 import Icon from "react-native-vector-icons/FontAwesome";
-import Loader from "./Loader";
+import Loader from "../Loader";
 
 const LoginPage = ({ navigation }) => {
-  const [eye, setEye] = React.useState("eye");
 
   const [loginData, setLoginData] = React.useState({email:"", password:""});
   const [IsLoading, setIsLoading] = React.useState(false);
@@ -33,9 +32,9 @@ const LoginPage = ({ navigation }) => {
 
   const loginSubmit = () => {
     if (
-      loginData.email &&
+      loginData?.email &&
       loginData?.email != "" &&
-      loginData.password &&
+      loginData?.password &&
       loginData?.password != ""
     )
       postData(loginData, "Login", navigation, setIsLoading);

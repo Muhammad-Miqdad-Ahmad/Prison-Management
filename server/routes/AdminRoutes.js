@@ -1,7 +1,8 @@
 const express = require("express");
 const AdminRouter = express.Router();
-const { DataExtract } = require("../Controllers/AdminControllers");
+const { DataExtract, AdminLogin } = require("../Controllers/AdminControllers");
 
-AdminRouter.get("/extractData", DataExtract);
+AdminRouter.get("/getData", DataExtract);
+AdminRouter.post("/login", AdminLogin);
 
 module.exports = AdminRouter;
