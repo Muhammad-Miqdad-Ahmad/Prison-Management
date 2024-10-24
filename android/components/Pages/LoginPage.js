@@ -10,7 +10,7 @@ import {
   ScrollView,
 } from "react-native";
 import React from "react";
-import { LoginStyles, centre } from "../Styles/Styling";
+import { LoginStyles, centre } from "../Styles/AdminStyling";
 import { onBackPress, postData } from "../Functions/Functions";
 import Icon from "react-native-vector-icons/FontAwesome";
 import Loader from "../Loader";
@@ -31,17 +31,18 @@ const LoginPage = ({ navigation }) => {
   }
 
   const loginSubmit = () => {
-    if (
-      loginData?.email &&
-      loginData?.email != "" &&
-      loginData?.password &&
-      loginData?.password != ""
-    )
-      postData(loginData, "Login", navigation, setIsLoading);
-    else Alert.alert("Please enter some data", null, [], { cancelable: true });
+    // if (
+    //   loginData?.email &&
+    //   loginData?.email != "" &&
+    //   loginData?.password &&
+    //   loginData?.password != ""
+    // )
+    //   postData(loginData, "Login", navigation, setIsLoading);
+    // else Alert.alert("Please enter some data", null, [], { cancelable: true });
 
     Keyboard.dismiss();
     setLoginData({email:"", password:""});
+    navigation.navigate("AdminDrawer");
   };
 
   const focusOnPassword = () => {

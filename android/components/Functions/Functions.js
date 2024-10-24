@@ -1,4 +1,4 @@
-import { centre, ToDoManagerStyles } from "../Styles/Styling";
+import { centre, ToDoManagerStyles } from "../Styles/AdminStyling";
 import { View, Text, Pressable, Alert, BackHandler } from "react-native";
 
 export const deletetask = (tasks, index, setTasks) => {
@@ -48,13 +48,11 @@ export const postData = async (data, navigation, setIsLoading) => {
   const body = {};
   setIsLoading(true);
 
-  body["userEmail"] = data.email;
-  body["userPassword"] = data.password;
+  body["email"] = data.email;
+  body["password"] = data.password;
 
-  const root = `http://192.168.168.167:9000/app/`;
+  const root = `http://192.168.168.167:9000/admin/login`;
 
-  console.log("Data being sent to the back end: ", body);
-  console.log(root);
   const response = await fetch(root, {
     method: "POST",
     headers: {
@@ -64,8 +62,7 @@ export const postData = async (data, navigation, setIsLoading) => {
   })
     .catch((error) => console.log(error))
     .finally(() => setIsLoading(false));
-  console.log("After fetch");
-  console.log(response.status);
+
   if (response.status === 200) {
     navigation.navigate("Home");
   } else {
