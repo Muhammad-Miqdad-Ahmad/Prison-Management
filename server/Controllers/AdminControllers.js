@@ -32,4 +32,8 @@ const AdminLogin = async (req, res) => {
   }
 };
 
-module.exports = { DataExtract, AdminLogin };
+const AddPrisoner = async (req, res) => {
+
+}
+
+module.exports = { DataExtract, AdminLogin, AddPrisoner };
