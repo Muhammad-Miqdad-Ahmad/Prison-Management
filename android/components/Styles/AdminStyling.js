@@ -136,4 +136,19 @@ export const Splash = StyleSheet.create({
   },
 });
 
-const AdminHomeStyle = StyleSheet.create({})
+export const AdminHomeStyle = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f2f2f2",
+  },
+  mainText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    fontFamily: "monospace",
+    // fontFamily: "Roboto",
+  },
+  genericText: {
+    fontSize: 20,
+    fontFamily: "monospace",
+  },
+});
