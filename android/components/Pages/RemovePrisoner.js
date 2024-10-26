@@ -1,9 +1,10 @@
 import { View, Text } from 'react-native'
 import React from 'react'
+import { centre } from '../Styles/AdminStyling'
 
 const RemovePrisoner = () => {
   return (
-    <View>
+    <View style={centre.centre}>
       <Text>RemovePrisoner</Text>
     </View>
   )

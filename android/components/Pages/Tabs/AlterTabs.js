@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { createMaterialBottomTabNavigator } from "react-native-paper/react-navigation";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { NavigationContainer } from "@react-navigation/native";
 
 const AlterTabs = ({ route }) => {
   const Tab = createMaterialBottomTabNavigator();

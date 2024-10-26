@@ -44,28 +44,66 @@ export const onBackPress = () => {
   return true;
 };
 
-export const postData = async (data, navigation, setIsLoading) => {
+export const postData = async (data, route) => {
   const body = {};
-  setIsLoading(true);
 
   body["email"] = data.email;
   body["password"] = data.password;
 
-  const root = `http://192.168.168.167:9000/admin/login`;
+  const root = `http://192.168.100.158:9000/${route}/login`;
 
-  const response = await fetch(root, {
+  const result = await fetch(root, {
     method: "POST",
     headers: {
       "CONTENT-TYPE": "application/json",
     },
     body: JSON.stringify(body),
   })
-    .catch((error) => console.log(error))
-    .finally(() => setIsLoading(false));
-
-  if (response.status === 200) {
-    navigation.navigate("Home");
-  } else {
-    alert(await response.text());
-  }
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      return error;
+    });
+    return result;
 };
+
+// HttpStatusCodes.js
+
+export const HttpStatusCodes = Object.freeze({
+  // 200 - Success
+  OK: 200,
+
+  // 201 - Created
+  CREATED: 201,
+
+  // 204 - No Content
+  NO_CONTENT: 204,
+
+  // 400 - Bad Request
+  BAD_REQUEST: 400,
+
+  // 401 - Unauthorized
+  UNAUTHORIZED: 401,
+  // Used when credentials are incorrect, e.g., incorrect password.
+
+  // 403 - Forbidden
+  FORBIDDEN: 403,
+  // User doesn't have permission to access this resource, even if authenticated.
+
+  // 404 - Not Found
+  NOT_FOUND: 404,
+  // Resource not found, e.g., user not found in the database.
+
+  // 409 - Conflict
+  CONFLICT: 409,
+  // Conflict with the current state of the resource, e.g., email already exists during registration.
+
+  // 500 - Internal Server Error
+  INTERNAL_SERVER_ERROR: 500,
+  // Server error for unexpected issues.
+
+  // 503 - Service Unavailable
+  SERVICE_UNAVAILABLE: 503,
+  // Server temporarily unable to handle the request.
+});
