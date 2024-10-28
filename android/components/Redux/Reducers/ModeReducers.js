@@ -1,7 +1,7 @@
 import { ADD_MODE } from "../Actions/types";
 
 const initialState = {
-  mode: "yada",
+  mode: "",
 };
 
 const ModeReducers = (state = initialState, action) => {

@@ -194,5 +194,10 @@ export const AdminAddPrisonerStyle = StyleSheet.create({
   dateText : {
     fontSize: 16,
     marginBottom: 16,
+  },
+  removebuttonContainer:{
+    width: "85%",
+    flexDirection: "row",
+    justifyContent: "space-between"
   }
 });
