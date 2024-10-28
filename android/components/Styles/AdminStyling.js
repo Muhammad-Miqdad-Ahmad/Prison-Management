@@ -152,3 +152,47 @@ export const AdminHomeStyle = StyleSheet.create({
     fontFamily: "monospace",
   },
 });
+
+export const AdminAddPrisonerStyle = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingVertical: 6,
+    height: "100%",
+  },
+  inputDiv: {
+    height: 1,
+    width: "100%",
+    margin: 12,
+  },
+  input: {
+    width: "90%",
+  },
+  inputBorderStyle: {
+    borderRadius: 15,
+  },
+  textDiv: {
+    width: "85%",
+    justifyContent: "flex-start",
+  },
+  text: {
+    fontSize: 15,
+    fontFamily: "monospace",
+  },
+  radioContainer:{
+    flexDirection: "row",
+    width: "85%",
+    justifyContent: "space-around"
+  },
+  datePickerDiv:{
+    width: "85%", 
+  },
+  dateHeadingText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
+  dateText : {
+    fontSize: 16,
+    marginBottom: 16,
+  }
+});

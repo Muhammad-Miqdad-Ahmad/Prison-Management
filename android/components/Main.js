@@ -3,7 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import LoginPage from "./Pages/LoginPage";
-import AdminDrawer from "./Drawers/AdminDrawer";
+import AdminDrawer from "./Pages/Drawers/AdminDrawer";
 
 export default function App() {
   const Stack = createNativeStackNavigator();

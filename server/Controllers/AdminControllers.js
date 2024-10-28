@@ -70,6 +70,7 @@ const AddPrisoner = async (req, res) => {
     !prisonerGender ||
     !prisonerCrime ||
     !dateOfCapture ||
+    // !dateOfRelease ||
     !prisonerSentence
   ) {
     return res

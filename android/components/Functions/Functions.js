@@ -1,5 +1,16 @@
-import { centre, ToDoManagerStyles } from "../Styles/AdminStyling";
+import { centre, ToDoManagerStyles, AdminAddPrisonerStyle } from "../Styles/AdminStyling";
 import { View, Text, Pressable, Alert, BackHandler } from "react-native";
+
+export const textInputForMenu = (content) => {
+  return (
+    <View style={AdminAddPrisonerStyle.textDiv}>
+      <Text style={AdminAddPrisonerStyle.text}>{content}</Text>
+    </View>
+  );
+};
+
+const databaseRoot = (router, route) =>
+  `http://192.168.241.14:9000/${router}/${route}`;
 
 export const deletetask = (tasks, index, setTasks) => {
   setTasks(tasks.filter((task, taskIndex) => taskIndex !== index));
@@ -44,13 +55,13 @@ export const onBackPress = () => {
   return true;
 };
 
-export const postData = async (data, route) => {
+export const postData = async (data, router, route) => {
   const body = {};
 
   body["email"] = data.email;
   body["password"] = data.password;
 
-  const root = `http://192.168.100.158:9000/${route}/login`;
+  const root = databaseRoot(router, route);
 
   const result = await fetch(root, {
     method: "POST",
@@ -65,11 +76,10 @@ export const postData = async (data, route) => {
     .catch((error) => {
       return error;
     });
-    return result;
+  return result;
 };
 
 // HttpStatusCodes.js
-
 export const HttpStatusCodes = Object.freeze({
   // 200 - Success
   OK: 200,

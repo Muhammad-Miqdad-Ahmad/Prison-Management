@@ -36,31 +36,32 @@ const LoginPage = ({ navigation }) => {
   }
 
   const loginSubmit = async () => {
-    let loginResponse;
-    if (
-      loginData?.email &&
-      loginData?.email != "" &&
-      loginData?.password &&
-      loginData?.password != ""
-    ) {
-      Keyboard.dismiss();
-      setIsLoading(true);
-      loginResponse = await postData(loginData, "admin");
-    } else {
-      Alert.alert("Please enter some data", null, [], { cancelable: true });
-      return;
-    }
+    // let loginResponse;
+    // if (
+    //   loginData?.email &&
+    //   loginData?.email != "" &&
+    //   loginData?.password &&
+    //   loginData?.password != ""
+    // ) {
+    //   Keyboard.dismiss();
+    //   setIsLoading(true);
+    //   loginResponse = await postData(loginData, "admin", "login");
+    // } else {
+    //   Alert.alert("Please enter some data", null, [], { cancelable: true });
+    //   return;
+    // }
 
-    setIsLoading(false);
-    const message = await loginResponse.json();
-    if (loginResponse?.ok) {
-      dispatchAdminData(addAdminData(message.data[0]));
-      navigation.navigate("AdminDrawer");
-    } else {
-      Alert.alert(`${loginResponse.status} \n${message.message}`, null, [], {
-        cancelable: true,
-      });
-    }
+    // setIsLoading(false);
+    // const message = await loginResponse.json();
+    // if (loginResponse?.ok) {
+    //   dispatchAdminData(addAdminData(message.data[0]));
+    //   navigation.navigate("AdminDrawer");
+    // } else {
+    //   Alert.alert(`${loginResponse.status} \n${message.message}`, null, [], {
+    //     cancelable: true,
+    //   });
+    // }
+    navigation.navigate("AdminDrawer");
     setLoginData({ email: "", password: "" });
   };
 
