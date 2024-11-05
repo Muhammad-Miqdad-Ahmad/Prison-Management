@@ -1,5 +1,23 @@
-const base = require("../Connections/Connections");
+const client = require("../Connections/Connections");
 const HttpStatusCodes = require("../Controllers/HttpRequests");
+
+const check = (req, res) => {
+  const query = "SELECT * from thana";
+  client.query(query, (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(HttpStatusCodes.NOT_FOUND).json({
+        message: "AHHHHH fuck 😒\nHere we go again 🤦‍♂️",
+        data: err,
+      });
+    } else {
+      console.log(results);
+      return res
+        .status(HttpStatusCodes.OK)
+        .json({ message: "Login successful", data: results });
+    }
+  });
+};
 
 const AdminLogin = async (req, res) => {
   const { email, password } = req.body;
@@ -13,7 +31,7 @@ const AdminLogin = async (req, res) => {
   const query = "SELECT * FROM chillarAdmins WHERE adminEmail = ?";
   try {
     // Execute the SQL query
-    base.query(query, [email], (err, results) => {
+    client.query(query, [email], (err, results) => {
       if (err) {
         console.log("in if");
         console.error(err);
@@ -102,7 +120,7 @@ const AddPrisoner = async (req, res) => {
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
-  base.query(query, values, (err, result) => {
+  client.query(query, values, (err, result) => {
     if (err) {
       // Handle unique constraint violation specifically
       if (err.code === "ER_DUP_ENTRY") {
@@ -139,7 +157,7 @@ const GetAdminData = async (req, res) => {
   const query = "SELECT * FROM chillarAdmins";
   try {
     // Execute the SQL query
-    base.query(query, (err, results) => {
+    client.query(query, (err, results) => {
       if (err) {
         console.error(err);
         res.status(HttpStatusCodes.NOT_FOUND).json({
@@ -165,4 +183,6 @@ const GetAdminData = async (req, res) => {
   }
 };
 
-module.exports = { GetAdminData, AdminLogin, AddPrisoner };
+const UpdatePrisone = async (req, res) => {};
+
+module.exports = { GetAdminData, AdminLogin, AddPrisoner, check };
