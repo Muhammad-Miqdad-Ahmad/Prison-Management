@@ -1,13 +1,9 @@
-// CustomCountrySelector.tsx
+// CustomCountrySelector.js
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import CountryPicker, {
-  Country,
-  CountryCode,
-} from "react-native-country-picker-modal";
+import { View, Text, StyleSheet } from "react-native";
+import CountryPicker from "react-native-country-picker-modal";
 import { Button } from "react-native-paper";
 import { AdminAddPrisonerStyle } from "../Styles/AdminStyling";
-import CustomBR from "./customBR";
 
 const CustomCountrySelector = () => {
   const [country, setCountry] = useState(null); // State to store selected country
@@ -28,17 +24,10 @@ const CustomCountrySelector = () => {
       >
         Select Country
       </Text>
-
-      {/* Display the selected country's flag and name in a styled container */}
-      {country && (
-        <View style={styles.countryDisplay}>
-          <Text style={styles.countryFlag}>{country.flag}</Text>
-          <Text style={AdminAddPrisonerStyle.text}>{country.name}</Text>
-        </View>
-      )}
+      
       {/* Country Picker Modal */}
       <CountryPicker
-        countryCode={country ? country : "US"} // Default to 'US' if no country selected
+        countryCode={country ? country.cca2 : "US"} // Use cca2 code for selected country
         withFilter
         withFlag
         withCountryNameButton
