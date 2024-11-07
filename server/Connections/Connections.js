@@ -1,4 +1,4 @@
-// const mySQL = require("mysql2");
+
 const { Client } = require('pg');
 require("dotenv").config();
 

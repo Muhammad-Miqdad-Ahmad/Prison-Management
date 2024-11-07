@@ -1,177 +1,131 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { View, StyleSheet, useColorScheme, ScrollView } from "react-native";
+import React, { useState } from "react";
+import {
+  View,
+  useColorScheme,
+  ScrollView,
+  Keyboard,
+  TouchableWithoutFeedback,
+} from "react-native";
 import CustomBR from "../../Custom/customBR";
 import {
   TextInput,
   RadioButton,
-  Button,
   Text,
   Provider as PaperProvider,
   MD3DarkTheme,
   MD3LightTheme,
 } from "react-native-paper";
+import CustomDatePicker from "../../Custom/CustomDatePicker"; // Import CustomDatePicker
 import { AdminAddPrisonerStyle, centre } from "../../Styles/AdminStyling";
-import {
-  DatePickerModal,
-  enGB,
-  registerTranslation,
-} from "react-native-paper-dates";
 import { textInputForMenu } from "../../Functions/Functions";
+import CustomTextInput from "../../Custom/CustomTextinput";
+import CustomCountrySelector from "../../Custom/CountrySelector";
 
 const AddPrisoner = () => {
-
-  const onChangeSingle = useCallback(
-    (params) => {
-      setSingleOpen(false);
-      setDate(params.date);
-    },
-    [setSingleOpen, setDate]
-  );
-
-  const onDismissSingle = useCallback(() => {
-    setSingleOpen(false);
-  }, [setSingleOpen]);
-
   const colorScheme = useColorScheme();
   const theme = colorScheme === "dark" ? MD3DarkTheme : MD3LightTheme;
-
-  /** State variables. */
-  const [singleOpen, setSingleOpen] = useState(false);
+  const [checked, setChecked] = useState("");
   const [date, setDate] = useState(undefined);
-  useEffect(() => registerTranslation("en-GB", enGB));
-  const [locale] = useState("en-GB");
+  const [dateOfBirth, setDateOfBirth] = useState(undefined);
 
-  const dateFormatter = useMemo(
-    () =>
-      new Intl.DateTimeFormat(locale, {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      }),
-    [locale]
-  );
+  const dismissKeyboard = () => {
+    Keyboard.dismiss();
+  };
 
-  // const pastDate = new Date(new Date().setDate(new Date().getDate() - 5));
-  // const futureDate = new Date(new Date().setDate(new Date().getDate() + 5));
-
-  const [checked, setChecked] = React.useState("");
   return (
     <PaperProvider theme={theme}>
-      <ScrollView>
-        <View style={[centre.centre, AdminAddPrisonerStyle.container]}>
-          <TextInput
-            outlineStyle={AdminAddPrisonerStyle.inputBorderStyle}
-            style={[AdminAddPrisonerStyle.input]}
-            mode="outlined"
-            placeholder="Enter the name of the prisoner"
-            outlineColor="blue"
-            activeOutlineColor="red"
-            label={"Name"}
-          />
-          <CustomBR />
-          <TextInput
-            keyboardType="numeric"
-            outlineStyle={AdminAddPrisonerStyle.inputBorderStyle}
-            style={[AdminAddPrisonerStyle.input]}
-            mode="outlined"
-            placeholder="Enter the age of the prisoner"
-            outlineColor="blue"
-            activeOutlineColor="red"
-            label={"Age"}
-          />
-          <CustomBR />
-          {textInputForMenu("Gender of the prisoner")}
-          <View style={AdminAddPrisonerStyle.radioContainer}>
-            <View style={[AdminAddPrisonerStyle.radioContainer, centre.centre]}>
-              <Text style={AdminAddPrisonerStyle.text}>Male</Text>
-              <RadioButton
-                color="blue"
-                uncheckedColor="grey"
-                value="male"
-                status={checked === "male" ? "checked" : "unchecked"}
-                onPress={() => setChecked("male")}
-              />
-            </View>
-            <View style={[AdminAddPrisonerStyle.radioContainer, centre.centre]}>
-              <Text style={AdminAddPrisonerStyle.text}>Female</Text>
-              <RadioButton
-                color="red"
-                uncheckedColor="grey"
-                value="female"
-                status={checked === "female" ? "checked" : "unchecked"}
-                onPress={() => setChecked("female")}
-              />
-            </View>
-          </View>
-          <CustomBR />
-          <CustomBR />
-          <View style={AdminAddPrisonerStyle.datePickerDiv}>
-            <View>
-              <Text
-                style={[
-                  AdminAddPrisonerStyle.text,
-                  AdminAddPrisonerStyle.dateHeadingText,
-                ]}
+      <TouchableWithoutFeedback onPress={dismissKeyboard}>
+        <ScrollView>
+          <CustomDatePicker date={dateOfBirth} setDate={setDateOfBirth}>
+            {/* Use CustomDatePicker with AddPrisoner fields as children */}
+            <View style={[centre.centre, AdminAddPrisonerStyle.container]}>
+              {/* First name of the prisoner */}
+              <CustomTextInput
+                outlineColor="blue"
+                activeOutlineColor="red"
+                label="First Name"
               >
-                Capture Date
-              </Text>
-              <Text
-                style={[
-                  AdminAddPrisonerStyle.text,
-                  AdminAddPrisonerStyle.dateText,
-                ]}
-              >
-                {date ? dateFormatter.format(date) : "No date selected."}
-              </Text>
-              <Button
-                onPress={() => setSingleOpen(true)}
-                uppercase={false}
-                mode="contained-tonal"
-              >
-                Pick Capture Date
-              </Button>
-            </View>
+                {"Enter The First Name"}
+              </CustomTextInput>
+              <CustomBR />
 
-            <DatePickerModal
-              locale="en-GB"
-              mode="single"
-              visible={singleOpen}
-              onDismiss={onDismissSingle}
-              date={date}
-              onConfirm={onChangeSingle}
-              validRange={{
-                startDate: null,
-                disabledDates: null,
-              }}
-              presentationStyle="overFullScreen"
-            />
+              {/* Last name of the prisoner */}
+              <CustomTextInput
+                outlineColor="blue"
+                activeOutlineColor="red"
+                label="Last Name"
+              >
+                {"Enter The last Name"}
+              </CustomTextInput>
+              <CustomBR />
+
+              {/* Age of the prisoner */}
+              <CustomTextInput
+                outlineColor="blue"
+                activeOutlineColor="red"
+                label="Age"
+              >
+                {"Enter The Age of The Prisoner"}
+              </CustomTextInput>
+              <CustomBR />
+            </View>
+            {"Date of Birth"}
+          </CustomDatePicker>
+
+          <View style={[centre.centre, AdminAddPrisonerStyle.container]}>
+            {/* Gender selection */}
+            {textInputForMenu("Gender of the prisoner")}
+            <View style={AdminAddPrisonerStyle.radioContainer}>
+              <View
+                style={[AdminAddPrisonerStyle.radioContainer, centre.centre]}
+              >
+                <Text style={AdminAddPrisonerStyle.text}>Male</Text>
+                <RadioButton
+                  color="blue"
+                  uncheckedColor="grey"
+                  value="male"
+                  status={checked === "male" ? "checked" : "unchecked"}
+                  onPress={() => setChecked("male")}
+                />
+              </View>
+              <View
+                style={[AdminAddPrisonerStyle.radioContainer, centre.centre]}
+              >
+                <Text style={AdminAddPrisonerStyle.text}>Female</Text>
+                <RadioButton
+                  color="red"
+                  uncheckedColor="grey"
+                  value="female"
+                  status={checked === "female" ? "checked" : "unchecked"}
+                  onPress={() => setChecked("female")}
+                />
+              </View>
+            </View>
+            <CustomBR />
+
+            {/* Nationality details */}
+            <CustomTextInput
+              outlineColor="blue"
+              activeOutlineColor="red"
+              label="Nationality"
+            >
+              {"Nationality"}
+            </CustomTextInput>
+            <CustomBR />
+
+            {/* Sentence details */}
+            <CustomTextInput
+              outlineColor="blue"
+              activeOutlineColor="red"
+              label="Sentence"
+            >
+              {"Sentence"}
+            </CustomTextInput>
+            <CustomBR />
+            <CustomCountrySelector />
           </View>
-          <CustomBR />
-          <TextInput
-            multiline={true}
-            keyboardType="text"
-            outlineStyle={AdminAddPrisonerStyle.inputBorderStyle}
-            style={[AdminAddPrisonerStyle.input]}
-            mode="outlined"
-            placeholder="Enter the crime of the prisoner"
-            outlineColor="blue"
-            activeOutlineColor="red"
-            label={"Crime"}
-          />
-          <CustomBR />
-          <TextInput
-            multiline={true}
-            keyboardType="text"
-            outlineStyle={AdminAddPrisonerStyle.inputBorderStyle}
-            style={[AdminAddPrisonerStyle.input]}
-            mode="outlined"
-            placeholder="Enter the sentence of the prisoner"
-            outlineColor="blue"
-            activeOutlineColor="red"
-            label={"Sentence"}
-          />
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </TouchableWithoutFeedback>
     </PaperProvider>
   );
 };

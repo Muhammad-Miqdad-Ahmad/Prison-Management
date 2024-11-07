@@ -9,13 +9,26 @@ import RemovePrisoner from "../Tabs/RemovePrisoner";
 import UpdatePrisoner from "../Tabs/UpdatePrisoner";
 
 import { createDrawerNavigator } from "@react-navigation/drawer";
+import { useSelector } from "react-redux";
 
 const AdminDrawer = () => {
   const Drawer = createDrawerNavigator();
-
-  const first = { text: "Add", route: AddPrisoner };
-  const second = { text: "Remove", route: RemovePrisoner };
-  const third = { text: "Update", route: UpdatePrisoner };
+  const adminData = useSelector((state) => state.admin.adminData);
+  const alterPrisonerData = [
+    { text: "Add", route: AddPrisoner },
+    { text: "Remove", route: RemovePrisoner },
+    { text: "Update", route: UpdatePrisoner },
+  ];
+  const alterGuardData = [
+    { text: "Add", route: AddPrisoner },
+    { text: "Remove", route: RemovePrisoner },
+    { text: "Update", route: UpdatePrisoner },
+  ];
+  const alterAdminData = [
+    { text: "Add", route: AddPrisoner },
+    { text: "Remove", route: RemovePrisoner },
+    { text: "Update", route: UpdatePrisoner },
+  ];
 
   return (
     <Drawer.Navigator backBehavior="firstRoute">
@@ -24,7 +37,7 @@ const AdminDrawer = () => {
       <Drawer.Screen
         name="Alter Prisoners data"
         component={AlterTabs}
-        initialParams={{ first: first, second: second, third: third }}
+        initialParams={{ first: alterPrisonerData[0], second: alterPrisonerData[1], third: alterPrisonerData[2] }}
         options={{
           title: "Alter Prisoner Data", //? the title that will be shown on the tab
           headerBackVisible: false,
@@ -32,6 +45,28 @@ const AdminDrawer = () => {
           headerTitleAlign: "center",
         }}
       />
+      <Drawer.Screen
+        name="Alter Guard data"
+        component={AlterTabs}
+        initialParams={{ first: alterPrisonerData[0], second: alterPrisonerData[1], third: alterPrisonerData[2] }}
+        options={{
+          title: "Alter guard Data", //? the title that will be shown on the tab
+          headerBackVisible: false,
+          headerBackTitleVisible: false,
+          headerTitleAlign: "center",
+        }}
+      />
+      {adminData?.accesslevel === undefined ? <Drawer.Screen
+        name="Alter Admin Data"
+        component={AlterTabs}
+        initialParams={{ first: alterPrisonerData[0], second: alterPrisonerData[1], third: alterPrisonerData[2] }}
+        options={{
+          title: "Alter Admin Data", //? the title that will be shown on the tab
+          headerBackVisible: false,
+          headerBackTitleVisible: false,
+          headerTitleAlign: "center",
+        }}
+      /> : null}
     </Drawer.Navigator>
   );
 };
