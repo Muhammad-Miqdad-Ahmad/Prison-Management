@@ -5,9 +5,9 @@ import { AdminAddPrisonerStyle } from "../Styles/AdminStyling";
 // Define the CustomTextInput component that accepts dynamic props
 const CustomTextInput = ({
   children,
-  outlineColor = "blue",
-  activeOutlineColor = "red",
-  label = "",
+  outlineColor,
+  activeOutlineColor,
+  label,
 }) => {
   return (
     <TextInput

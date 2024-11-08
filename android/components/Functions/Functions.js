@@ -9,6 +9,10 @@ export const textInputForMenu = (content) => {
   );
 };
 
+export const textInputForHeader = (content) => {
+  
+}
+
 const databaseRoot = (router, route) =>
   `http://192.168.241.14:9000/${router}/${route}`;
 

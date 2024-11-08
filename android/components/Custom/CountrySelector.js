@@ -4,6 +4,7 @@ import { View, Text, StyleSheet } from "react-native";
 import CountryPicker from "react-native-country-picker-modal";
 import { Button } from "react-native-paper";
 import { AdminAddPrisonerStyle } from "../Styles/AdminStyling";
+import CustomBR from "./customBR";
 
 const CustomCountrySelector = () => {
   const [country, setCountry] = useState(null); // State to store selected country
@@ -15,7 +16,7 @@ const CustomCountrySelector = () => {
   };
 
   return (
-    <View style={AdminAddPrisonerStyle.input}>
+    <View style={AdminAddPrisonerStyle.textDiv}>
       <Text
         style={[
           AdminAddPrisonerStyle.text,
@@ -24,7 +25,7 @@ const CustomCountrySelector = () => {
       >
         Select Country
       </Text>
-      
+
       {/* Country Picker Modal */}
       <CountryPicker
         countryCode={country ? country.cca2 : "US"} // Use cca2 code for selected country
@@ -37,7 +38,7 @@ const CustomCountrySelector = () => {
         onClose={() => setVisible(false)}
         onSelect={onSelect}
       />
-
+      <CustomBR />
       {/* Button to open the Country Picker */}
       <Button
         onPress={() => setVisible(true)}

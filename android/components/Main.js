@@ -29,15 +29,6 @@ export default function App() {
             headerBackVisible: false,
             headerBackTitleVisible: false,
             headerTitleAlign: "center",
-            // headerLeft: () => (
-            //   <Pressable>
-            //     <Icon
-            //       name={"bars"}
-            //       size={20}
-            //       color="gray"
-            //     />
-            //   </Pressable>
-            // ),
           }}
         />
       </Stack.Navigator>
