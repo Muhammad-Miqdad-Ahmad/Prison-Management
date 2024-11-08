@@ -3,8 +3,8 @@ import {
   Keyboard,
   ScrollView,
   TouchableWithoutFeedback,
-  LogBox,
 } from "react-native";
+import FingerprintScanner from "react-native-fingerprint-scanner"
 
 const dismissKeyboard = () => {
   Keyboard.dismiss();
