@@ -3,12 +3,9 @@ import {
   View,
   useColorScheme,
   ScrollView,
-  Keyboard,
-  TouchableWithoutFeedback,
 } from "react-native";
 import CustomBR from "../Custom/customBR";
 import {
-  TextInput,
   RadioButton,
   Text,
   Provider as PaperProvider,
@@ -18,17 +15,15 @@ import {
 import { AdminAddPrisonerStyle, centre } from "../Styles/AdminStyling";
 import { textInputForMenu } from "../Functions/Functions";
 import CustomTextInput from "../Custom/CustomTextinput";
-import Loader from "../Loader";
 import CustomComponentLoader from "../Custom/CustomComponentLoader";
-// import CustomCountrySelector from "../Custom/CountrySelector";
+const CustomCountrySelector = lazy(() => import("../Custom/CountrySelector"));
+const CustomDatePicker = lazy(() => import("../Custom/CustomDatePicker"));
 
 const AddPersonData = ({ data, setData }) => {
   const colorScheme = useColorScheme();
   const theme = colorScheme === "dark" ? MD3DarkTheme : MD3LightTheme;
   const [dateOfBirth, setDateOfBirth] = useState(undefined);
 
-  const CustomCountrySelector = lazy(() => import("../Custom/CountrySelector"));
-  const CustomDatePicker = lazy(() => import("../Custom/CustomDatePicker"));
 
   useEffect(() => {
     if (!data) setData({});
@@ -106,7 +101,7 @@ const AddPersonData = ({ data, setData }) => {
           </CustomTextInput>
           <CustomBR />
         </View>
-        <Suspense fallback={<CustomComponentLoader hite={150} size={50} />}>
+        <Suspense fallback={<CustomComponentLoader hite={150} size={50} color="#d17bf6" />}>
           <CustomDatePicker date={dateOfBirth} setDate={setDateOfBirth}>
             <Text></Text>
             {"Date of Birth"}
@@ -117,7 +112,7 @@ const AddPersonData = ({ data, setData }) => {
           <CustomBR />
 
           {/* Nationality */}
-          <Suspense fallback={<CustomComponentLoader hite={150} size={50} />}>
+          <Suspense fallback={<CustomComponentLoader hite={150} size={50} color="#d17bf6" />}>
             <CustomCountrySelector />
           </Suspense>
         </View>

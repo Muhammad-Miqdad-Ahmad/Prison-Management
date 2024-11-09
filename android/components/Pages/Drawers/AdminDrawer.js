@@ -4,9 +4,7 @@ import AdminHome from "./AdminHome";
 import AdminSearch from "./AdminSearch";
 import AlterTabs from "../Tabs/AlterTabs";
 
-import AddPrisoner from "../Tabs/AddPrisoner";
-import RemovePrisoner from "../Tabs/RemovePrisoner";
-import UpdatePrisoner from "../Tabs/UpdatePrisoner";
+import GenericTab from "../Tabs/GenericTab";
 
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { useSelector } from "react-redux";
@@ -15,6 +13,7 @@ import RemovePerson from "../RemoveData";
 import UpdateData from "../UpdateData";
 
 import { LogBox } from "react-native";
+import AddPrisonerData from "../AddPrisonerData";
 LogBox.ignoreLogs([
   'Non-serializable values were found in the navigation state',
 ]);
@@ -25,38 +24,41 @@ const AdminDrawer = () => {
   const alterPrisonerData = [
     {
       text: "Add",
-      route: AddPrisoner,
+      route: GenericTab,
       iconName: "plus",
-      component: [<AddPersonData />],
+      component: [<AddPersonData />, <AddPrisonerData />],
+      componentText: ["Add Personal detail of the prisoner", "Add Prisoner detail"],
       barColor: "blue",
       activeIconColor: "#FFFFFF"
     },
     {
       text: "Remove",
-      route: RemovePrisoner,
+      route: GenericTab,
       iconName: "trash",
       component: [<RemovePerson />],
+      componentText: [""],
       barColor: "red",
       activeIconColor: "#FFFFFF"
     },
     {
       text: "Update",
-      route: UpdatePrisoner,
+      route: GenericTab,
       iconName: "edit",
       component: [<UpdateData />],
+      componentText: [""],
       barColor: "yellow",
       activeIconColor: "#000000"
     },
   ];
   const alterGuardData = [
-    { text: "Add", route: AddPrisoner },
-    { text: "Remove", route: RemovePrisoner },
-    { text: "Update", route: UpdatePrisoner },
+    { text: "Add", route: GenericTab },
+    { text: "Remove", route: GenericTab },
+    { text: "Update", route: GenericTab },
   ];
   const alterAdminData = [
-    { text: "Add", route: AddPrisoner },
-    { text: "Remove", route: RemovePrisoner },
-    { text: "Update", route: UpdatePrisoner },
+    { text: "Add", route: GenericTab },
+    { text: "Remove", route: GenericTab },
+    { text: "Update", route: GenericTab },
   ];
 
   return (

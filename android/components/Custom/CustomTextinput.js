@@ -7,8 +7,9 @@ const CustomTextInput = ({
   outlineColor,
   activeOutlineColor,
   label,
+  keyboardType = "text",
   data,
-  setData
+  setData,
 }) => {
   const handleTextChange = (text) => {
     setData((prevData) => ({
@@ -20,7 +21,7 @@ const CustomTextInput = ({
   return (
     <TextInput
       multiline={true}
-      keyboardType="text"
+      keyboardType={keyboardType}
       outlineStyle={AdminAddPrisonerStyle.inputBorderStyle}
       style={[AdminAddPrisonerStyle.input]}
       mode={"outlined"}

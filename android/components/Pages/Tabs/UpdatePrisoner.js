@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  Keyboard,
-  ScrollView,
-  TouchableWithoutFeedback,
-} from "react-native";
+import { Keyboard, ScrollView, TouchableWithoutFeedback } from "react-native";
 
 const dismissKeyboard = () => {
   Keyboard.dismiss();
@@ -12,8 +8,10 @@ const dismissKeyboard = () => {
 const UpdatePrisoner = ({ route }) => {
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
-    <ScrollView>{route?.params?.components?.map((component)=>(component))}</ScrollView>
-  </TouchableWithoutFeedback>
+      <ScrollView>
+        {route?.params?.components?.map((component) => component)}
+      </ScrollView>
+    </TouchableWithoutFeedback>
   );
 };
 

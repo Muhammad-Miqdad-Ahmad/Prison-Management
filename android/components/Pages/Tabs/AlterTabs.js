@@ -22,11 +22,12 @@ const AlterTabs = ({ route }) => {
         inactiveColor="#3e2465"
         barStyle={{ backgroundColor: barColor }}
       >
-        {route?.params?.tabs?.map((tab) => (
+        {route?.params?.tabs?.map((tab, index) => (
           <Tab.Screen
+            key={index}
             name={tab?.text}
             component={tab?.route}
-            initialParams={{ components: tab?.component }}
+            initialParams={{ components: tab?.component, text: tab?.componentText }}
             options={{
               tabBarIcon: ({ color }) => (
                 <Icon name={tab?.iconName} size={20} color={color} />
