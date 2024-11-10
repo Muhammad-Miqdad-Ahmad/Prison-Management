@@ -16,7 +16,7 @@ import { useColorScheme } from "react-native";
 import { AdminAddPrisonerStyle, centre } from "../Styles/AdminStyling";
 
 // Adding children prop to allow passing content above the date picker
-const CustomDatePicker = ({ children, date, setDate, dateText }) => {
+const CustomDatePicker = ({ children, date, setDate, theme }) => {
   const [singleOpen, setSingleOpen] = useState(false);
 
   useEffect(() => registerTranslation("en-GB", enGB), []);
@@ -40,9 +40,6 @@ const CustomDatePicker = ({ children, date, setDate, dateText }) => {
   const onDismissSingle = useCallback(() => {
     setSingleOpen(false);
   }, []);
-
-  const colorScheme = useColorScheme();
-  const theme = colorScheme === "dark" ? MD3DarkTheme : MD3LightTheme;
 
   return (
     <PaperProvider theme={theme}>

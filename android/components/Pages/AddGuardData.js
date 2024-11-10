@@ -11,7 +11,7 @@ import CustomTextInput from "../Custom/CustomTextinput";
 import CustomComponentLoader from "../Custom/CustomComponentLoader";
 const CustomDatePicker = lazy(() => import("../Custom/CustomDatePicker"));
 
-const AddPrisonerData = ({ data, setData }) => {
+const AddGuardData = ({ data, setData }) => {
   const colorScheme = useColorScheme();
   const theme = colorScheme === "dark" ? MD3DarkTheme : MD3LightTheme;
   const [dateOfCapture, setdateOfCapture] = useState(undefined);
@@ -59,7 +59,11 @@ const AddPrisonerData = ({ data, setData }) => {
             <CustomComponentLoader hite={150} size={50} color="#d17bf6" />
           }
         >
-          <CustomDatePicker date={dateOfCapture} setDate={setdateOfCapture} theme={theme}>
+          <CustomDatePicker
+            date={dateOfCapture}
+            setDate={setdateOfCapture}
+            theme={theme}
+          >
             {/* Sentence of the prisoner */}
             <View style={[centre.centre, AdminAddPrisonerStyle.container]}>
               <CustomTextInput
@@ -109,4 +113,4 @@ const AddPrisonerData = ({ data, setData }) => {
   );
 };
 
-export default AddPrisonerData;
+export default AddGuardData;

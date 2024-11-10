@@ -102,7 +102,7 @@ const AddPersonData = ({ data, setData }) => {
           <CustomBR />
         </View>
         <Suspense fallback={<CustomComponentLoader hite={150} size={50} color="#d17bf6" />}>
-          <CustomDatePicker date={dateOfBirth} setDate={setDateOfBirth}>
+          <CustomDatePicker date={dateOfBirth} setDate={setDateOfBirth} theme={theme}>
             <Text></Text>
             {"Date of Birth"}
           </CustomDatePicker>

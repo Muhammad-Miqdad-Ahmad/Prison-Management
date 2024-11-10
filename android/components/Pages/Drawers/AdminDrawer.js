@@ -14,6 +14,8 @@ import UpdateData from "../UpdateData";
 
 import { LogBox } from "react-native";
 import AddPrisonerData from "../AddPrisonerData";
+import AddGuardData from "../AddGuardData";
+
 LogBox.ignoreLogs([
   'Non-serializable values were found in the navigation state',
 ]);
@@ -51,9 +53,33 @@ const AdminDrawer = () => {
     },
   ];
   const alterGuardData = [
-    { text: "Add", route: GenericTab },
-    { text: "Remove", route: GenericTab },
-    { text: "Update", route: GenericTab },
+    {
+      text: "Add",
+      route: GenericTab,
+      iconName: "plus",
+      component: [<AddPersonData />, <AddGuardData />],
+      componentText: ["Add Personal detail of the Guard", "Add Guard detail"],
+      barColor: "blue",
+      activeIconColor: "#FFFFFF"
+    },
+    {
+      text: "Remove",
+      route: GenericTab,
+      iconName: "trash",
+      component: [<RemovePerson />],
+      componentText: [""],
+      barColor: "red",
+      activeIconColor: "#FFFFFF"
+    },
+    {
+      text: "Update",
+      route: GenericTab,
+      iconName: "edit",
+      component: [<UpdateData />],
+      componentText: [""],
+      barColor: "yellow",
+      activeIconColor: "#000000"
+    },
   ];
   const alterAdminData = [
     { text: "Add", route: GenericTab },
@@ -78,13 +104,11 @@ const AdminDrawer = () => {
           headerTitleAlign: "center",
         }}
       />
-      {/* <Drawer.Screen
+      <Drawer.Screen
         name="Alter Guard data"
         component={AlterTabs}
         initialParams={{
-          first: alterGuardData[0],
-          second: alterGuardData[1],
-          third: alterGuardData[2],
+          tabs: alterGuardData,
         }}
         options={{
           title: "Alter guard Data", //? the title that will be shown on the tab
@@ -93,7 +117,7 @@ const AdminDrawer = () => {
           headerTitleAlign: "center",
         }}
       />
-      {adminData?.accesslevel === undefined ? (
+      {/* {adminData?.accesslevel === undefined ? (
         <Drawer.Screen
           name="Alter Admin Data"
           component={AlterTabs}
