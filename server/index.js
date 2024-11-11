@@ -16,16 +16,6 @@ app.use("/admin", AdminRouter);
 app.use("/visitor", VisitorRouter);
 app.use("/prisoner", PrisonerRouter);
 
-// base.connect((err) => {
-//   if (err) {
-//     console.log("An Error has occurred");
-//     console.error(err);
-//   } else {
-//     console.log("data base is horny 😈");
-//     app.listen(process.env.PORT, console.log(`Server is wet 💦 ${process.env.PORT}%`));
-//   }
-// });
-
 client.connect(function (err) {
   if (err) {
     console.log("An Error has occurred");
