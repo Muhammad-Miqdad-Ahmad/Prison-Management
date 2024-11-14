@@ -1,11 +1,20 @@
 import React, { useState, useCallback } from "react";
-import { View, ScrollView, Keyboard, TouchableWithoutFeedback } from "react-native";
+import {
+  View,
+  ScrollView,
+  Keyboard,
+  TouchableWithoutFeedback,
+} from "react-native";
 import CustomBR from "../Custom/customBR";
 import { TextInput, Button } from "react-native-paper";
 import { AdminAddPrisonerStyle, centre } from "../Styles/AdminStyling";
 import _ from "lodash";
 
-const RemovePerson = ({ buttonLabels = ["PrisonerID", "Email", "Name"], data, setData }) => {
+const RemovePerson = ({
+  buttonLabels = ["PrisonerID", "Email", "Name"],
+  data,
+  setData,
+}) => {
   const [removeBasedOn, setRemoveBasedOn] = useState("PrisonerID");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -24,11 +33,11 @@ const RemovePerson = ({ buttonLabels = ["PrisonerID", "Email", "Name"], data, se
 
   const handleChange = (text) => {
     setSearchQuery(text);
-    debouncedSearch(text);  // Call the debounced search function
+    debouncedSearch(text); // Call the debounced search function
   };
 
   const dismissKeyboard = () => {
-    Keyboard.dismiss();  // Dismiss keyboard when clicking outside
+    Keyboard.dismiss(); // Dismiss keyboard when clicking outside
   };
 
   return (

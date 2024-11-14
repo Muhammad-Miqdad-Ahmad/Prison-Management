@@ -153,6 +153,33 @@ export const AdminHomeStyle = StyleSheet.create({
   },
 });
 
+export const AdminSearchStyle = StyleSheet.create({
+  container: {
+    padding: 16,
+    flex: 1,
+  },
+  header: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 12,
+  },
+  input: {
+    backgroundColor: "white",
+  },
+  buttonsContainer: {
+    width: "85%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  button: {
+    paddingHorizontal: 5,
+    paddingVertical: 3
+  },  
+  scroll: {
+    paddingBottom: 10,
+  }
+});
+
 export const AdminAddPrisonerStyle = StyleSheet.create({
   container: {
     flex: 1,
@@ -178,26 +205,26 @@ export const AdminAddPrisonerStyle = StyleSheet.create({
     fontSize: 15,
     fontFamily: "monospace",
   },
-  radioContainer:{
+  radioContainer: {
     flexDirection: "row",
     width: "85%",
-    justifyContent: "space-around"
+    justifyContent: "space-around",
   },
-  datePickerDiv:{
-    width: "85%", 
+  datePickerDiv: {
+    width: "85%",
   },
   dateHeadingText: {
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 8,
   },
-  dateText : {
+  dateText: {
     fontSize: 16,
     marginBottom: 16,
   },
-  removebuttonContainer:{
+  removebuttonContainer: {
     width: "85%",
     flexDirection: "row",
-    justifyContent: "space-between"
-  }
+    justifyContent: "space-between",
+  },
 });

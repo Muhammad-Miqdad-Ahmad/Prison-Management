@@ -15,6 +15,7 @@ import UpdateData from "../UpdateData";
 import { LogBox } from "react-native";
 import AddPrisonerData from "../AddPrisonerData";
 import AddGuardData from "../AddGuardData";
+import AddAdminData from "../AddAdminData";
 
 LogBox.ignoreLogs([
   'Non-serializable values were found in the navigation state',
@@ -82,9 +83,62 @@ const AdminDrawer = () => {
     },
   ];
   const alterAdminData = [
-    { text: "Add", route: GenericTab },
-    { text: "Remove", route: GenericTab },
-    { text: "Update", route: GenericTab },
+    {
+      text: "Add",
+      route: GenericTab,
+      iconName: "plus",
+      component: [<AddPersonData />, <AddAdminData/>],
+      componentText: ["Add Personal detail of the Admin", "Add Admin detail"],
+      barColor: "blue",
+      activeIconColor: "#FFFFFF"
+    },
+    {
+      text: "Remove",
+      route: GenericTab,
+      iconName: "trash",
+      component: [<RemovePerson />],
+      componentText: [""],
+      barColor: "red",
+      activeIconColor: "#FFFFFF"
+    },
+    {
+      text: "Update",
+      route: GenericTab,
+      iconName: "edit",
+      component: [<UpdateData />],
+      componentText: [""],
+      barColor: "yellow",
+      activeIconColor: "#000000"
+    },
+  ];
+  const alterPrisonData = [
+    {
+      text: "Add",
+      route: GenericTab,
+      iconName: "plus",
+      component: [<AddPersonData />, <AddAdminData/>],
+      componentText: ["Add Personal detail of the Admin", "Add Admin detail"],
+      barColor: "blue",
+      activeIconColor: "#FFFFFF"
+    },
+    {
+      text: "Remove",
+      route: GenericTab,
+      iconName: "trash",
+      component: [<RemovePerson />],
+      componentText: [""],
+      barColor: "red",
+      activeIconColor: "#FFFFFF"
+    },
+    {
+      text: "Update",
+      route: GenericTab,
+      iconName: "edit",
+      component: [<UpdateData />],
+      componentText: [""],
+      barColor: "yellow",
+      activeIconColor: "#000000"
+    },
   ];
 
   return (
@@ -117,23 +171,21 @@ const AdminDrawer = () => {
           headerTitleAlign: "center",
         }}
       />
-      {/* {adminData?.accesslevel === undefined ? (
+      {adminData?.accesslevel === undefined ? (
         <Drawer.Screen
           name="Alter Admin Data"
           component={AlterTabs}
           initialParams={{
-            first: alterAdminData[0],
-            second: alterAdminData[1],
-            third: alterAdminData[2],
+            tabs: alterAdminData,
           }}
           options={{
-            title: "Alter Admin Data", //? the title that will be shown on the tab
+            title: "Alter Admin Data",
             headerBackVisible: false,
             headerBackTitleVisible: false,
             headerTitleAlign: "center",
           }}
         />
-      ) : null} */}
+      ) : null}
     </Drawer.Navigator>
   );
 };

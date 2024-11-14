@@ -34,7 +34,7 @@ const AddGuardData = ({ data, setData }) => {
           <CustomTextInput
             outlineColor="blue"
             activeOutlineColor="red"
-            label="PrisonerID"
+            label="GuardID"
             data={data}
             setData={setData}
           >
@@ -64,20 +64,8 @@ const AddGuardData = ({ data, setData }) => {
             setDate={setdateOfCapture}
             theme={theme}
           >
-            {/* Sentence of the prisoner */}
-            <View style={[centre.centre, AdminAddPrisonerStyle.container]}>
-              <CustomTextInput
-                outlineColor="blue"
-                activeOutlineColor="red"
-                label="Sentence"
-                data={data}
-                setData={setData}
-              >
-                {"Enter The Sentence of The Prisoner"}
-              </CustomTextInput>
-              <CustomBR />
-            </View>
-            {"Date of Capture"}
+            <></>
+            {"Date of Joining"}
           </CustomDatePicker>
         </Suspense>
         <CustomBR />
