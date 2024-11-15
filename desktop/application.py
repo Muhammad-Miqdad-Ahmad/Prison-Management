@@ -105,7 +105,7 @@ class MainApp(QMainWindow):
         layout.addWidget(self.complaint_button)
         layout.addWidget(self.back_button)
         layout.addWidget(self.logout_button)
-        layout.setAlignment(Qt.AlignTop)
+        layout.setAlignment(Qt.AlignCenter)
 
         guard_widget.setLayout(layout)
         self.stacked_widget.addWidget(guard_widget)
@@ -124,6 +124,10 @@ class MainApp(QMainWindow):
         self.visitation_display = QLabel("No upcoming visitations.")
         self.visitation_display.setStyleSheet("font-size: 20px; color: #FFD700;")
 
+        self.complaint_button = QPushButton("Submit Complaint")
+        self.complaint_button.setStyleSheet(self.button_style)
+        self.complaint_button.clicked.connect(self.show_complaint_view)
+
         back_button = QPushButton("Back")
         back_button.setStyleSheet(self.button_style)
         back_button.clicked.connect(self.show_login_view)
@@ -137,9 +141,11 @@ class MainApp(QMainWindow):
         layout.addWidget(self.sentence_display)
         layout.addWidget(visitation_label)
         layout.addWidget(self.visitation_display)
+        layout.setAlignment(Qt.AlignTop)
+        layout.addWidget(self.complaint_button)
         layout.addWidget(back_button)
         layout.addWidget(logout_button)
-        layout.setAlignment(Qt.AlignTop)
+        layout.setAlignment(Qt.AlignCenter)
 
         prisoner_widget.setLayout(layout)
         self.stacked_widget.addWidget(prisoner_widget)
