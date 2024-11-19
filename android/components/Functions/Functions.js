@@ -1,4 +1,8 @@
-import { centre, ToDoManagerStyles, AdminAddPrisonerStyle } from "../Styles/AdminStyling";
+import {
+  centre,
+  ToDoManagerStyles,
+  AdminAddPrisonerStyle,
+} from "../Styles/AdminStyling";
 import { View, Text, Pressable, Alert, BackHandler } from "react-native";
 
 export const textInputForMenu = (content) => {
@@ -9,9 +13,7 @@ export const textInputForMenu = (content) => {
   );
 };
 
-export const textInputForHeader = (content) => {
-  
-}
+export const textInputForHeader = (content) => {};
 
 const databaseRoot = (router, route) =>
   `http://192.168.241.14:9000/${router}/${route}`;
@@ -81,6 +83,10 @@ export const postData = async (data, router, route) => {
       return error;
     });
   return result;
+};
+
+export const searchDebounce = () => {
+  
 };
 
 // HttpStatusCodes.js

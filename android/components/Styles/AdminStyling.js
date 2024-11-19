@@ -176,7 +176,11 @@ export const AdminSearchStyle = StyleSheet.create({
     paddingVertical: 3
   },  
   scroll: {
-    paddingBottom: 10,
+    width: "auto",
+    paddingBottom: 5,
+    paddingTop: 5,
+    flexDirection: "row",
+    justifyContent: "space-between",
   }
 });
 
@@ -210,6 +214,10 @@ export const AdminAddPrisonerStyle = StyleSheet.create({
     width: "85%",
     justifyContent: "space-around",
   },
+  radio: {
+    flexDirection: "row",
+    width: "50%"
+  },
   datePickerDiv: {
     width: "85%",
   },
@@ -226,5 +234,22 @@ export const AdminAddPrisonerStyle = StyleSheet.create({
     width: "85%",
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+});
+
+export const ButtonStyles = StyleSheet.create({
+  buttonContainer: {
+    marginHorizontal: 5,
+    borderRadius: 20,
+    overflow: "hidden", // Ensure the red background aligns with the button's shape
+  },
+  selectedButtonBackground: {
+    backgroundColor: "red", // Highlight background for the selected button
+  },
+  buttonText: {
+    color: "#000", // Default text color
+  },
+  selectedText: {
+    color: "#FFF", // White text for the selected button
   },
 });

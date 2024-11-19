@@ -34,7 +34,7 @@ const UpdateData = ({ data, setData }) => {
         <CustomBR />
         {textInputForMenu("Gender of the prisoner")}
         <View style={AdminAddPrisonerStyle.radioContainer}>
-          <View style={[AdminAddPrisonerStyle.radioContainer, centre.centre]}>
+          <View style={[AdminAddPrisonerStyle.radio, centre.centre]}>
             <Text style={AdminAddPrisonerStyle.text}>Male</Text>
             <RadioButton
               color="blue"
@@ -44,7 +44,7 @@ const UpdateData = ({ data, setData }) => {
               onPress={() => setChecked("male")}
             />
           </View>
-          <View style={[AdminAddPrisonerStyle.radioContainer, centre.centre]}>
+          <View style={[AdminAddPrisonerStyle.radio, centre.centre]}>
             <Text style={AdminAddPrisonerStyle.text}>Female</Text>
             <RadioButton
               color="red"

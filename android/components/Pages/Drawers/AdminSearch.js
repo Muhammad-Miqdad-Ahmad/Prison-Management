@@ -1,14 +1,11 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import {
   Text,
   View,
   Keyboard,
   TouchableWithoutFeedback,
   ScrollView,
-  Animated,
-  Dimensions,
 } from "react-native";
-import { Button, TextInput } from "react-native-paper";
 import _ from "lodash";
 import {
   AdminAddPrisonerStyle,
@@ -16,19 +13,21 @@ import {
   centre,
 } from "../../Styles/AdminStyling";
 import CustomBR from "../../Custom/customBR";
+import { TextInput } from "react-native-paper";
+import CustomButtonSelector from "../../Custom/CustomButtonSelector";
+import { searchDebounce } from "../../Functions/Functions";
 
-const screenWidth = Dimensions.get("window").width;
 
 const AdminSearch = () => {
-  const [query, setQuery] = useState("");
-  const [removeBasedOn, setRemoveBasedOn] = useState("Admin");
   const searchInputRef = useRef(null);
-  const scrollX = useRef(new Animated.Value(0)).current;
+  const [query, setQuery] = useState("");
+  const [searchResults, setsearchResults] = useState({});
+  const [removeBasedOn, setRemoveBasedOn] = useState("Admin");
 
-  // Debounce the search function
   const debouncedSearch = useCallback(
     _.debounce((searchQuery) => {
-      handleSearch(searchQuery);
+      console.log("Searching for:", searchQuery);
+      setsearchResults(searchDebounce());
     }, 500),
     []
   );
@@ -36,11 +35,6 @@ const AdminSearch = () => {
   const handleChange = (text) => {
     setQuery(text);
     debouncedSearch(text);
-  };
-
-  const handleSearch = (searchQuery) => {
-    console.log("Searching for:", searchQuery);
-    // Add actual search logic or API calls here
   };
 
   const dismissKeyboard = () => {
@@ -70,48 +64,12 @@ const AdminSearch = () => {
           />
           <CustomBR />
           <View style={AdminSearchStyle.buttonsContainer}>
-            <Animated.ScrollView
-              horizontal
-              style={AdminSearchStyle.scroll}
-              showsHorizontalScrollIndicator={false}
-              onScroll={Animated.event(
-                [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-                { useNativeDriver: false }
-              )}
-              scrollEventThrottle={16}
-            >
-              {buttonLabels.map((label, index) => {
-                // Start the buttons off-screen to the right (or left if you prefer)
-                const slideAnim = useRef(new Animated.Value(screenWidth)).current;
-
-                // Trigger slide-in animation when the button is about to appear on the screen
-                useEffect(() => {
-                  Animated.timing(slideAnim, {
-                    toValue: 0,
-                    duration: 500,
-                    useNativeDriver: true,
-                  }).start();
-                }, []);
-
-                return (
-                  <Animated.View
-                    key={index}
-                    style={[
-                      AdminSearchStyle.button,
-                      { transform: [{ translateX: slideAnim }] },
-                    ]}
-                  >
-                    <Button
-                      buttonColor={removeBasedOn === label ? "red" : ""}
-                      mode={removeBasedOn === label ? "contained" : "elevated"}
-                      onPress={() => setRemoveBasedOn(label)}
-                    >
-                      {label}
-                    </Button>
-                  </Animated.View>
-                );
-              })}
-            </Animated.ScrollView>
+            <CustomButtonSelector
+              buttonLabels={buttonLabels}
+              selectedState={removeBasedOn}
+              setSelectedState={setRemoveBasedOn}
+              buttonStyle={AdminSearchStyle}
+            />
           </View>
         </View>
       </TouchableWithoutFeedback>

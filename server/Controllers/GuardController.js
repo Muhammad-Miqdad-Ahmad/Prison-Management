@@ -5,4 +5,4 @@ const SomeFunction = async (req, res)=>{
 
 }
 
-module.exports = { SomeFunction, funcfautdf }
+module.exports = { SomeFunction }

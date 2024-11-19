@@ -66,7 +66,7 @@ const AddPersonData = ({ data, setData }) => {
           {/* Gender selection */}
           {textInputForMenu("Please Select The Gender")}
           <View style={AdminAddPrisonerStyle.radioContainer}>
-            <View style={[AdminAddPrisonerStyle.radioContainer, centre.centre]}>
+            <View style={[AdminAddPrisonerStyle.radio, centre.centre]}>
               <Text style={AdminAddPrisonerStyle.text}>Male</Text>
               <RadioButton
                 color="blue"
@@ -76,7 +76,7 @@ const AddPersonData = ({ data, setData }) => {
                 onPress={() => setData({ ...data, gender: "male" })}
               />
             </View>
-            <View style={[AdminAddPrisonerStyle.radioContainer, centre.centre]}>
+            <View style={[AdminAddPrisonerStyle.radio, centre.centre]}>
               <Text style={AdminAddPrisonerStyle.text}>Female</Text>
               <RadioButton
                 color="red"

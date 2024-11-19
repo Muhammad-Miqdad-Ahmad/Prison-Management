@@ -1,8 +1,33 @@
 const client = require("../Connections/Connections");
 const HttpStatusCodes = require("../Controllers/HttpRequests");
 
+const buildQuery = (req, res) => {      //? Its working
+  const tableName = req.query.tableName;
+
+  const query = `
+  SELECT column_name 
+  FROM information_schema.columns 
+  WHERE table_name = $1
+`;
+
+  client.query(query, [tableName], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(HttpStatusCodes.NOT_FOUND).json({
+        message: "Some error",
+        data: err,
+      });
+    } else {
+      console.log(results);
+      return res
+        .status(HttpStatusCodes.OK)
+        .json({ message: "Tables extracted successfully", data: results });
+    }
+  });
+};
+
 const check = (req, res) => {
-  const query = "SELECT * from thana";
+  const query = "SELECT * from admins";
   client.query(query, (err, results) => {
     if (err) {
       console.error(err);
@@ -183,6 +208,10 @@ const GetAdminData = async (req, res) => {
   }
 };
 
-const UpdatePrisone = async (req, res) => {};
+const debounceSearch = async (req, res) => {
+  return res.status(200).json({ message: "Okay" });
+};
 
-module.exports = { GetAdminData, AdminLogin, AddPrisoner, check };
+const UpdatePrisoner = async (req, res) => {};
+
+module.exports = { GetAdminData, AdminLogin, AddPrisoner, check, buildQuery };

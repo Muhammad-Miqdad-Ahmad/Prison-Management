@@ -6,9 +6,10 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import CustomBR from "../Custom/customBR";
-import { TextInput, Button } from "react-native-paper";
+import { TextInput } from "react-native-paper";
 import { AdminAddPrisonerStyle, centre } from "../Styles/AdminStyling";
 import _ from "lodash";
+import CustomButtonSelector from "../Custom/CustomButtonSelector";
 
 const RemovePerson = ({
   buttonLabels = ["PrisonerID", "Email", "Name"],
@@ -57,16 +58,11 @@ const RemovePerson = ({
           />
           <CustomBR />
           <View style={AdminAddPrisonerStyle.removebuttonContainer}>
-            {buttonLabels.map((label) => (
-              <Button
-                key={label}
-                buttonColor={removeBasedOn === label ? "red" : ""}
-                mode={removeBasedOn === label ? "contained" : "elevated"}
-                onPress={() => setRemoveBasedOn(label)}
-              >
-                {label}
-              </Button>
-            ))}
+            <CustomButtonSelector
+              buttonLabels={buttonLabels}
+              selectedState={removeBasedOn}
+              setSelectedState={setRemoveBasedOn}
+            />
           </View>
         </View>
       </ScrollView>
