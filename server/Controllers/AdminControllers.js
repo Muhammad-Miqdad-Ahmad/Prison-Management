@@ -1,7 +1,8 @@
 const client = require("../Connections/Connections");
 const HttpStatusCodes = require("../Controllers/HttpRequests");
 
-const buildQuery = (req, res) => {      //? Its working
+const buildQuery = (req, res) => {
+  //? Its working
   const tableName = req.query.tableName;
 
   const query = `
@@ -209,9 +210,67 @@ const GetAdminData = async (req, res) => {
 };
 
 const debounceSearch = async (req, res) => {
-  return res.status(200).json({ message: "Okay" });
+  const tableName = req.query.tableName;
+  const search = req.query.search;
+  console.log("search:", search);
+  console.log("tableName:", tableName);
+
+  if (!tableName || !search) {
+    return res.status(HttpStatusCodes.BAD_REQUEST).json({
+      message: "Missing required query parameters: tableName or search",
+    });
+  }
+
+  try {
+    const columnQuery = `
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = $1
+    `;
+
+    const columnResult = await client.query(columnQuery, [tableName]);
+    const columns = columnResult.rows
+      .map((row) => row.column_name)
+      .filter((column) => !column.toLowerCase().includes("password")); // Exclude columns containing "password"
+
+    console.log(columns);
+
+    if (columns.length === 0) {
+      return res.status(HttpStatusCodes.NOT_FOUND).json({
+        message: `No columns found for table: ${tableName}`,
+      });
+    }
+
+    let query = `SELECT * FROM ${tableName} WHERE `;
+    const conditions = columns.map((column) => `${column}::text ILIKE $1`);
+    query += conditions.join(" OR ");
+
+    console.log(query);
+
+    const searchValue = `%${search}%`;
+    const result = await client.query(query, [searchValue]);
+
+    console.log(searchValue);
+    return res.status(HttpStatusCodes.OK).json({
+      message: "Search completed successfully",
+      data: result.rows,
+    });
+  } catch (err) {
+    console.error("Error in debounceSearch:", err);
+    return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: "Error executing search",
+      data: err,
+    });
+  }
 };
 
 const UpdatePrisoner = async (req, res) => {};
 
-module.exports = { GetAdminData, AdminLogin, AddPrisoner, check, buildQuery };
+module.exports = {
+  GetAdminData,
+  AdminLogin,
+  AddPrisoner,
+  check,
+  buildQuery,
+  debounceSearch,
+};

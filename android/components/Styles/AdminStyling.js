@@ -253,3 +253,54 @@ export const ButtonStyles = StyleSheet.create({
     color: "#FFF", // White text for the selected button
   },
 });
+
+export const SearchMenuStyle = StyleSheet.create({
+  container: {
+    zIndex: 1,
+    position: "absolute"
+  }
+})
+
+export const CustomMenuStyle = StyleSheet.create({
+  menuContainer: {
+    position: "absolute",
+    top: 105, // Adjust as needed based on your UI
+    left: 20,
+    right: 20,
+    backgroundColor: "#ededed",
+    borderRadius: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 5,
+    zIndex: 1000,
+  },
+  scrollContainer: {
+    maxHeight: 300, // Limit the height for vertical scrolling
+  },
+  row: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+    paddingVertical: 10,
+  },
+  cell: {
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 5,
+    borderRightWidth: 1,
+    borderRightColor: "#ddd",
+  },
+  headerText: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 5,
+  },
+  dataText: {
+    fontSize: 12,
+    color: "#333",
+  },
+});

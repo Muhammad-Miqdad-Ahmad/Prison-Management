@@ -85,10 +85,26 @@ export const postData = async (data, router, route) => {
   return result;
 };
 
-export const searchDebounce = () => {
-  
-};
+export const searchDebounce = async (tableName, search) => {
+  console.log(tableName);
+  if (search === "") return [];
+  let root = databaseRoot("admin", "debounce");
+  root = root + "?tableName=" + tableName + "&search=" + search;
 
+  const searchResults = await fetch(root, {
+    method: "GET",
+    headers: {
+      "CONTENT-TYPE": "application/json",
+    },
+  })
+    .then((result) => {
+      return result;
+    })
+    .catch((error) => {
+      return error;
+    });
+  return searchResults;
+};
 // HttpStatusCodes.js
 export const HttpStatusCodes = Object.freeze({
   // 200 - Success
