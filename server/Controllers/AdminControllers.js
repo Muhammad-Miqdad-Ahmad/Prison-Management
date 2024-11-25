@@ -1,8 +1,8 @@
 const client = require("../Connections/Connections");
 const HttpStatusCodes = require("../Controllers/HttpRequests");
+const { generic_delete } = require("../Functions/Functions");
 
 const buildQuery = (req, res) => {
-  //? Its working
   const tableName = req.query.tableName;
 
   const query = `
@@ -278,6 +278,45 @@ const AddAdmin = async (req, res) => {
   }
 };
 
+const DeletePrisoner = async (req, res) => {
+  const ID = req.query.prisonerID;
+
+  if (!ID) {
+    return res
+      .status(HttpStatusCodes.BAD_REQUEST)
+      .json({ message: "Prisoner ID is required." });
+  }
+  return generic_delete(res, "prisoner", "prisoner_id", ID, client, HttpStatusCodes);
+};
+
+const DeleteGuard = async (req, res) => {
+  const ID = req.query.guardID;
+
+  if (!ID) {
+    return res
+      .status(HttpStatusCodes.BAD_REQUEST)
+      .json({ message: "Guard ID is required." });
+  }
+  return generic_delete(res, "guards", "guard_id", ID, client, HttpStatusCodes);
+};
+
+const DeleteAdmin = async (req, res) => {
+  const ID = req.query.adminID;
+
+  if (!ID) {
+    return res
+      .status(HttpStatusCodes.BAD_REQUEST)
+      .json({ message: "Admin ID is required." });
+  }
+  return generic_delete(res, "admins", "admin_id", ID, client, HttpStatusCodes);
+};
+
+const UpdatePrisoner = async (req, res) => {};
+
+const UpdateGuard = async (req, res) => {};
+
+const UpdateAdmin = async (req, res) => {};
+
 const GetAdminData = async (req, res) => {
   const query = "SELECT * FROM chillarAdmins";
   try {
@@ -363,8 +402,6 @@ const debounceSearch = async (req, res) => {
   }
 };
 
-const UpdatePrisoner = async (req, res) => {};
-
 module.exports = {
   GetAdminData,
   AdminLogin,
@@ -374,4 +411,10 @@ module.exports = {
   debounceSearch,
   AddAdmin,
   AddGuard,
+  DeletePrisoner,
+  DeleteGuard,
+  DeleteAdmin,
+  UpdatePrisoner,
+  UpdateGuard,
+  UpdateAdmin,
 };
