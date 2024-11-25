@@ -34,7 +34,7 @@ const AddPrisonerData = ({ data, setData }) => {
           <CustomTextInput
             outlineColor="blue"
             activeOutlineColor="red"
-            label="PrisonerID"
+            label="prisonerID"
             data={data}
             setData={setData}
           >
@@ -46,11 +46,23 @@ const AddPrisonerData = ({ data, setData }) => {
           <CustomTextInput
             outlineColor="blue"
             activeOutlineColor="red"
-            label="PrisonID"
+            label="prisonID"
             data={data}
             setData={setData}
           >
             {"Enter The Prison ID of where the prisoner is held"}
+          </CustomTextInput>
+          <CustomBR />
+          
+          {/* Status of the prisoner */}
+          <CustomTextInput
+            outlineColor="blue"
+            activeOutlineColor="red"
+            label="prisonerStatus"
+            data={data}
+            setData={setData}
+          >
+            {"Enter The status of the prisoner"}
           </CustomTextInput>
           <CustomBR />
         </View>
@@ -59,15 +71,20 @@ const AddPrisonerData = ({ data, setData }) => {
             <CustomComponentLoader hite={150} size={50} color="#d17bf6" />
           }
         >
-          <CustomDatePicker date={dateOfCapture} setDate={setdateOfCapture} theme={theme}>
+          <CustomDatePicker
+            date={dateOfCapture}
+            setDate={setdateOfCapture}
+            theme={theme}
+          >
             {/* Sentence of the prisoner */}
             <View style={[centre.centre, AdminAddPrisonerStyle.container]}>
               <CustomTextInput
+                data={data}
+                maxLength={200}
+                label="prisonerSentence"
+                setData={setData}
                 outlineColor="blue"
                 activeOutlineColor="red"
-                label="Sentence"
-                data={data}
-                setData={setData}
               >
                 {"Enter The Sentence of The Prisoner"}
               </CustomTextInput>
@@ -86,6 +103,7 @@ const AddPrisonerData = ({ data, setData }) => {
             label="relative-1"
             data={data}
             setData={setData}
+            maxLength={15}
           >
             {"Enter The CNIC of the first relative"}
           </CustomTextInput>
@@ -99,6 +117,7 @@ const AddPrisonerData = ({ data, setData }) => {
             label="relative-2"
             data={data}
             setData={setData}
+            maxLength={15}
           >
             {"Enter The CNIC of the second relative"}
           </CustomTextInput>

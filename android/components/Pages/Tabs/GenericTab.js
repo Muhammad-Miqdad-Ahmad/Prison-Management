@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Keyboard, ScrollView, TouchableWithoutFeedback } from "react-native";
 import { List } from "react-native-paper";
+import CustomSubmit from "../../Custom/CustomSubmit";
 
 const dismissKeyboard = () => {
   Keyboard.dismiss();
@@ -37,6 +38,7 @@ export const GenericTab = ({ route }) => {
             })
           );
         })}
+        <CustomSubmit callback={route?.params?.submitCallBack} data={data}/>
       </ScrollView>
     </TouchableWithoutFeedback>
   );

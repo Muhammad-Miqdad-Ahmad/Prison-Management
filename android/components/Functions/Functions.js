@@ -105,7 +105,27 @@ export const searchDebounce = async (tableName, search) => {
     });
   return searchResults;
 };
-// HttpStatusCodes.js
+
+export const submitAddAdmin = (data) => {
+  if (!data || typeof data !== "object") {
+    alert("Invalid data.");
+    return;
+  }
+
+  const requiredFields = ["FirstName", "LastName", "Password", "AccessLevel", "Prison"];
+
+  // Check for missing or empty fields
+  for (const field of requiredFields) {
+    if (data[field] === undefined || data[field] === "") {
+      alert(`Invalid data. The field '${field}' is required and cannot be empty.`);
+      return;
+    }
+  }
+
+  console.log("Data passed validation:", data);
+
+};
+
 export const HttpStatusCodes = Object.freeze({
   // 200 - Success
   OK: 200,

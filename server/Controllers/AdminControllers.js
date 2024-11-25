@@ -94,62 +94,57 @@ const AdminLogin = async (req, res) => {
 };
 
 const AddPrisoner = async (req, res) => {
-  const {
-    prisonerName,
-    prisonerNumber,
+  const values = ({
+    prisonID,
+    FirstName,
+    LastName,
+    dateOfBirth,
     prisonerAge,
+    prisonerNationality,
     prisonerGender,
-    prisonerCrime,
     dateOfCapture,
     dateOfRelease,
+    prisonerStatus,
+    prisonerCrime,
     prisonerSentence,
-  } = req.body;
+    relative1,
+    relative2,
+    prisonerID,
+  } = req.body);
 
-  if (
-    !prisonerName ||
-    !prisonerNumber ||
-    !prisonerNumber ||
-    !prisonerAge ||
-    Number.isNaN(prisonerAge) ||
-    !prisonerGender ||
-    !prisonerCrime ||
-    !dateOfCapture ||
-    // !dateOfRelease ||
-    !prisonerSentence
-  ) {
-    return res
-      .status(HttpStatusCodes.BAD_REQUEST)
-      .json("Send me a the best nigga out there\nI cant work with this shit");
+  const requiredFields = [];
+
+  for (const [key, value] of Object.entries(values)) {
+    if (!value) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ message: `${key} is required and cannot be empty.` });
+    } else requiredFields.push(value);
   }
 
-  const values = [
-    prisonerName,
-    prisonerNumber,
-    prisonerAge,
-    prisonerGender,
-    prisonerCrime,
-    dateOfCapture,
-    dateOfRelease,
-    prisonerSentence,
-  ];
-
   const query = `
-    INSERT INTO Prisoners (
-      prisoner_name,
-      prisoner_number,
-      prisoner_age,
-      prisoner_gender,
-      prisoner_crime,
-      date_of_capture,
-      date_of_release,
-      prisoner_sentence
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `;
+    INSERT INTO Prisoner (
+      prision_id, 
+      person, 
+      sentence_start_date, 
+      sentence_end_date, 
+      status,
+      crime,
+      sentence, 
+      visitor_1, 
+      visitor_2, 
+      prisoner_id
+    ) 
+    VALUES(
+    $1, 
+    ROW($2, $3, $4, $5, $6, $7), 
+    $8, $9, $10, $11, $12, $13, $14, $15
+    );`;
 
-  client.query(query, values, (err, result) => {
+  client.query(query, requiredFields, (err, result) => {
     if (err) {
       // Handle unique constraint violation specifically
-      if (err.code === "ER_DUP_ENTRY") {
+      if (err.code === "23505") {
         return res
           .status(HttpStatusCodes.CONFLICT) // 409 Conflict
           .json({
@@ -159,10 +154,10 @@ const AddPrisoner = async (req, res) => {
       }
 
       // General error handling for other errors
-      console.error("Error inserting data:", err);
+      console.log(err);
       return res
         .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: "Error inserting data", error: err });
+        .json({ message: "Error inserting data", data: err });
     }
 
     // Handle cases where result may be undefined or empty
@@ -174,9 +169,113 @@ const AddPrisoner = async (req, res) => {
 
     // Success response
     return res
-      .status(HttpStatusCodes.OK)
+      .status(HttpStatusCodes.CREATED)
       .json({ message: "Data inserted successfully", data: result });
   });
+};
+
+const AddGuard = async (req, res) => {
+  const values = ({
+    guardID,
+    prisonID,
+    firstName,
+    lastName,
+    dateOfBirth,
+    age,
+    nationality,
+    gender,
+    joiningDate,
+    shift,
+    qrCode,
+  } = req.body);
+
+  const requiredFields = [];
+
+  for (const [key, value] of Object.entries(values)) {
+    if (!value) {
+      return res
+        .status(HttpStatusCodes.BAD_REQUEST)
+        .json({ message: `${key} is required and cannot be empty.` });
+    } else requiredFields.push(value);
+  }
+
+  const query = `
+    INSERT INTO guards (
+      guard_id, 
+      prision_id, 
+      person, 
+      joining_date, 
+      shift, 
+      qr_code
+    ) 
+    VALUES (
+      $1, 
+      $2, 
+      ROW($3, $4, $5, $6, $7, $8), 
+      $9, 
+      $10, 
+      $11
+    );
+  `;
+
+  client.query(query, requiredFields, (err, result) => {
+    if (err) {
+      // Handle unique constraint violation specifically
+      if (err.code === "23505") {
+        return res.status(HttpStatusCodes.CONFLICT).json({
+          message: "Conflict: A guard with this ID or QR code already exists.",
+          data: err,
+        });
+      }
+
+      // General error handling for other errors
+      console.error(err);
+      return res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: "Error inserting data", data: err });
+    }
+
+    // Handle cases where result may be undefined or empty
+    if (!result || result.rowCount === 0) {
+      return res
+        .status(HttpStatusCodes.NOT_FOUND)
+        .json({ message: "No data inserted", data: result });
+    }
+
+    // Success response
+    return res
+      .status(HttpStatusCodes.CREATED)
+      .json({ message: "Guard data inserted successfully", data: result });
+  });
+};
+
+const AddAdmin = async (req, res) => {
+  const { admin_email, prision_id, admin_password } = req.body;
+
+  const query = `INSERT INTO admins ( admin_email, prision_id, admin_password )
+                 VALUES 
+                 ($1, $2, $3);`;
+
+  try {
+    const result = await client.query(query, [
+      admin_email,
+      prision_id,
+      admin_password,
+    ]);
+    return res.status(HttpStatusCodes.CREATED).json({
+      message: "Admin added successfully",
+      data: result,
+    });
+  } catch (error) {
+    if (error?.detail == `Key (admin_email)=(${admin_email}) already exists.`) {
+      res
+        .status(HttpStatusCodes.CONFLICT)
+        .json({ message: "This email already exists", data: error });
+    } else
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: "Could not create admin", data: error });
+  }
 };
 
 const GetAdminData = async (req, res) => {
@@ -273,4 +372,6 @@ module.exports = {
   check,
   buildQuery,
   debounceSearch,
+  AddAdmin,
+  AddGuard,
 };

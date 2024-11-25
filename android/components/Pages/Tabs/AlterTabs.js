@@ -27,7 +27,7 @@ const AlterTabs = ({ route }) => {
             key={index}
             name={tab?.text}
             component={tab?.route}
-            initialParams={{ components: tab?.component, text: tab?.componentText }}
+            initialParams={{ components: tab?.component, text: tab?.componentText, submitCallBack: tab?.callBack }}
             options={{
               tabBarIcon: ({ color }) => (
                 <Icon name={tab?.iconName} size={20} color={color} />

@@ -16,6 +16,7 @@ import { LogBox } from "react-native";
 import AddPrisonerData from "../AddPrisonerData";
 import AddGuardData from "../AddGuardData";
 import AddAdminData from "../AddAdminData";
+import { submitAddAdmin } from "../../Functions/Functions";
 
 LogBox.ignoreLogs([
   'Non-serializable values were found in the navigation state',
@@ -32,7 +33,8 @@ const AdminDrawer = () => {
       component: [<AddPersonData />, <AddPrisonerData />],
       componentText: ["Add Personal detail of the prisoner", "Add Prisoner detail"],
       barColor: "blue",
-      activeIconColor: "#FFFFFF"
+      activeIconColor: "#FFFFFF",
+      callBack: console.log
     },
     {
       text: "Remove",
@@ -41,7 +43,8 @@ const AdminDrawer = () => {
       component: [<RemovePerson />],
       componentText: [""],
       barColor: "red",
-      activeIconColor: "#FFFFFF"
+      activeIconColor: "#FFFFFF",
+      callBack: console.log
     },
     {
       text: "Update",
@@ -50,7 +53,8 @@ const AdminDrawer = () => {
       component: [<UpdateData />],
       componentText: [""],
       barColor: "yellow",
-      activeIconColor: "#000000"
+      activeIconColor: "#000000",
+      callBack: console.log
     },
   ];
   const alterGuardData = [
@@ -61,7 +65,8 @@ const AdminDrawer = () => {
       component: [<AddPersonData />, <AddGuardData />],
       componentText: ["Add Personal detail of the Guard", "Add Guard detail"],
       barColor: "blue",
-      activeIconColor: "#FFFFFF"
+      activeIconColor: "#FFFFFF",
+      callBack: console.log
     },
     {
       text: "Remove",
@@ -70,7 +75,8 @@ const AdminDrawer = () => {
       component: [<RemovePerson />],
       componentText: [""],
       barColor: "red",
-      activeIconColor: "#FFFFFF"
+      activeIconColor: "#FFFFFF",
+      callBack: console.log
     },
     {
       text: "Update",
@@ -79,7 +85,8 @@ const AdminDrawer = () => {
       component: [<UpdateData />],
       componentText: [""],
       barColor: "yellow",
-      activeIconColor: "#000000"
+      activeIconColor: "#000000",
+      callBack: console.log
     },
   ];
   const alterAdminData = [
@@ -87,10 +94,11 @@ const AdminDrawer = () => {
       text: "Add",
       route: GenericTab,
       iconName: "plus",
-      component: [<AddPersonData />, <AddAdminData/>],
-      componentText: ["Add Personal detail of the Admin", "Add Admin detail"],
+      component: [<AddAdminData/>],
+      componentText: [""],
       barColor: "blue",
-      activeIconColor: "#FFFFFF"
+      activeIconColor: "#FFFFFF",
+      callBack: submitAddAdmin
     },
     {
       text: "Remove",
@@ -99,7 +107,8 @@ const AdminDrawer = () => {
       component: [<RemovePerson />],
       componentText: [""],
       barColor: "red",
-      activeIconColor: "#FFFFFF"
+      activeIconColor: "#FFFFFF",
+      callBack: console.log
     },
     {
       text: "Update",
@@ -108,7 +117,8 @@ const AdminDrawer = () => {
       component: [<UpdateData />],
       componentText: [""],
       barColor: "yellow",
-      activeIconColor: "#000000"
+      activeIconColor: "#000000",
+      callBack: console.log
     },
   ];
   const alterPrisonData = [
@@ -119,7 +129,8 @@ const AdminDrawer = () => {
       component: [<AddPersonData />, <AddAdminData/>],
       componentText: ["Add Personal detail of the Admin", "Add Admin detail"],
       barColor: "blue",
-      activeIconColor: "#FFFFFF"
+      activeIconColor: "#FFFFFF",
+      callBack: console.log
     },
     {
       text: "Remove",
@@ -128,7 +139,8 @@ const AdminDrawer = () => {
       component: [<RemovePerson />],
       componentText: [""],
       barColor: "red",
-      activeIconColor: "#FFFFFF"
+      activeIconColor: "#FFFFFF",
+      callBack: console.log
     },
     {
       text: "Update",
@@ -137,7 +149,8 @@ const AdminDrawer = () => {
       component: [<UpdateData />],
       componentText: [""],
       barColor: "yellow",
-      activeIconColor: "#000000"
+      activeIconColor: "#000000",
+      callBack: console.log
     },
   ];
 

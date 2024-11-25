@@ -4,12 +4,14 @@ import { AdminAddPrisonerStyle } from "../Styles/AdminStyling";
 
 const CustomTextInput = ({
   children,
-  outlineColor,
-  activeOutlineColor,
+  outlineColor = "blue",
+  activeOutlineColor = "red",
   label,
   keyboardType = "text",
   data,
   setData,
+  maxLength = 50,
+  onSubmitEditing = console.log,
 }) => {
   const handleTextChange = (text) => {
     setData((prevData) => ({
@@ -20,17 +22,19 @@ const CustomTextInput = ({
 
   return (
     <TextInput
-      multiline={true}
-      keyboardType={keyboardType}
-      outlineStyle={AdminAddPrisonerStyle.inputBorderStyle}
-      style={[AdminAddPrisonerStyle.input]}
-      mode={"outlined"}
-      placeholder={children}
-      outlineColor={outlineColor}
-      activeOutlineColor={activeOutlineColor}
       label={label}
-      value={data[label] || ''} // Display the value for the specific label in the input
-      onChangeText={handleTextChange} // Call handleTextChange on text change
+      multiline={true}
+      mode={"outlined"}
+      maxLength={maxLength}
+      placeholder={children}
+      value={data[label] || ""}
+      keyboardType={keyboardType}
+      outlineColor={outlineColor}
+      onChangeText={handleTextChange}
+      onSubmitEditing={onSubmitEditing}
+      style={[AdminAddPrisonerStyle.input]}
+      activeOutlineColor={activeOutlineColor}
+      outlineStyle={AdminAddPrisonerStyle.inputBorderStyle}
     />
   );
 };
