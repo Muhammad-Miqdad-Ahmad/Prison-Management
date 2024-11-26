@@ -1,6 +1,10 @@
 const client = require("../Connections/Connections");
 const HttpStatusCodes = require("../Controllers/HttpRequests");
-const { generic_delete } = require("../Functions/Functions");
+const {
+  generic_delete,
+  generic_update,
+  generic_add,
+} = require("../Functions/Functions");
 
 const buildQuery = (req, res) => {
   const tableName = req.query.tableName;
@@ -141,37 +145,7 @@ const AddPrisoner = async (req, res) => {
     $8, $9, $10, $11, $12, $13, $14, $15
     );`;
 
-  client.query(query, requiredFields, (err, result) => {
-    if (err) {
-      // Handle unique constraint violation specifically
-      if (err.code === "23505") {
-        return res
-          .status(HttpStatusCodes.CONFLICT) // 409 Conflict
-          .json({
-            message: "Conflict: thers is already a nigga with this name.",
-            data: err,
-          });
-      }
-
-      // General error handling for other errors
-      console.log(err);
-      return res
-        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: "Error inserting data", data: err });
-    }
-
-    // Handle cases where result may be undefined or empty
-    if (!result || result.affectedRows === 0) {
-      return res
-        .status(HttpStatusCodes.NOT_FOUND)
-        .json({ message: "No data inserted", data: result });
-    }
-
-    // Success response
-    return res
-      .status(HttpStatusCodes.CREATED)
-      .json({ message: "Data inserted successfully", data: result });
-  });
+  return generic_add(res, query, requiredFields, client, HttpStatusCodes);
 };
 
 const AddGuard = async (req, res) => {
@@ -218,64 +192,25 @@ const AddGuard = async (req, res) => {
     );
   `;
 
-  client.query(query, requiredFields, (err, result) => {
-    if (err) {
-      // Handle unique constraint violation specifically
-      if (err.code === "23505") {
-        return res.status(HttpStatusCodes.CONFLICT).json({
-          message: "Conflict: A guard with this ID or QR code already exists.",
-          data: err,
-        });
-      }
-
-      // General error handling for other errors
-      console.error(err);
-      return res
-        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: "Error inserting data", data: err });
-    }
-
-    // Handle cases where result may be undefined or empty
-    if (!result || result.rowCount === 0) {
-      return res
-        .status(HttpStatusCodes.NOT_FOUND)
-        .json({ message: "No data inserted", data: result });
-    }
-
-    // Success response
-    return res
-      .status(HttpStatusCodes.CREATED)
-      .json({ message: "Guard data inserted successfully", data: result });
-  });
+  return generic_add(res, query, requiredFields, client, HttpStatusCodes);
 };
 
 const AddAdmin = async (req, res) => {
   const { admin_email, prision_id, admin_password } = req.body;
 
-  const query = `INSERT INTO admins ( admin_email, prision_id, admin_password )
-                 VALUES 
-                 ($1, $2, $3);`;
-
-  try {
-    const result = await client.query(query, [
-      admin_email,
-      prision_id,
-      admin_password,
-    ]);
-    return res.status(HttpStatusCodes.CREATED).json({
-      message: "Admin added successfully",
-      data: result,
+  if (!admin_email || !prision_id || !admin_password) {
+    return res.status(HttpStatusCodes.BAD_REQUEST).json({
+      message:
+        "All fields (admin_email, prision_id, admin_password) are required.",
     });
-  } catch (error) {
-    if (error?.detail == `Key (admin_email)=(${admin_email}) already exists.`) {
-      res
-        .status(HttpStatusCodes.CONFLICT)
-        .json({ message: "This email already exists", data: error });
-    } else
-      res
-        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: "Could not create admin", data: error });
   }
+
+  const query = `INSERT INTO admins (admin_email, prision_id, admin_password)
+                 VALUES ($1, $2, $3);`;
+
+  const requiredFields = [admin_email, prision_id, admin_password];
+
+  generic_add(res, query, requiredFields, client, HttpStatusCodes);
 };
 
 const DeletePrisoner = async (req, res) => {
@@ -286,7 +221,14 @@ const DeletePrisoner = async (req, res) => {
       .status(HttpStatusCodes.BAD_REQUEST)
       .json({ message: "Prisoner ID is required." });
   }
-  return generic_delete(res, "prisoner", "prisoner_id", ID, client, HttpStatusCodes);
+  return generic_delete(
+    res,
+    "prisoner",
+    "prisoner_id",
+    ID,
+    client,
+    HttpStatusCodes
+  );
 };
 
 const DeleteGuard = async (req, res) => {
@@ -311,11 +253,58 @@ const DeleteAdmin = async (req, res) => {
   return generic_delete(res, "admins", "admin_id", ID, client, HttpStatusCodes);
 };
 
-const UpdatePrisoner = async (req, res) => {};
+const UpdatePrisoner = async (req, res) => {
+  const { sentence_end_date, prisoner_status, visitor_1, visitor_2 } = req.body;
 
-const UpdateGuard = async (req, res) => {};
+  const requiredFields = {
+    sentence_end_date,
+    prisoner_status,
+    visitor_1,
+    visitor_2,
+  };
 
-const UpdateAdmin = async (req, res) => {};
+  return generic_update(
+    res,
+    "prisoner",
+    "prisoner_id",
+    req.body.prisonerID,
+    requiredFields,
+    client,
+    HttpStatusCodes
+  );
+};
+
+const UpdateGuard = async (req, res) => {
+  const { shift } = req.body;
+
+  const requiredFields = { shift };
+
+  return generic_update(
+    res,
+    "guards",
+    "guard_id",
+    req.body.guardID,
+    requiredFields,
+    client,
+    HttpStatusCodes
+  );
+};
+
+const UpdateAdmin = async (req, res) => {
+  const { admin_email, admin_password } = req.body;
+
+  const requiredFields = { admin_email, admin_password };
+
+  return generic_update(
+    res,
+    "admin",
+    "admin_id",
+    req.body.adminID,
+    requiredFields,
+    client,
+    HttpStatusCodes
+  );
+};
 
 const GetAdminData = async (req, res) => {
   const query = "SELECT * FROM chillarAdmins";

@@ -41,7 +41,7 @@ CREATE TABLE Prisoner (
     person Person NOT NULL, -- Using the custom type
     sentence_start_date DATE NOT NULL,
     sentence_end_date DATE,
-    status VARCHAR(255) NOT NULL,
+    prisoner_status VARCHAR(255) NOT NULL,
     visitor_1 INTEGER UNIQUE,
     visitor_2 INTEGER UNIQUE,
     sentence VARCHAR NOT NULL,

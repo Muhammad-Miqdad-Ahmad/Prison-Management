@@ -8,7 +8,6 @@ const CustomSubmit = ({ callback = console.log, data = "Some Data" }) => {
       <Button
         mode="contained-tonal"
         onPress={() => {
-          console.log(data);
           callback(data);
         }}
       >

@@ -3,6 +3,8 @@ import {
   ToDoManagerStyles,
   AdminAddPrisonerStyle,
 } from "../Styles/AdminStyling";
+import axios from "axios";
+import Constants from "expo-constants";
 import { View, Text, Pressable, Alert, BackHandler } from "react-native";
 
 export const textInputForMenu = (content) => {
@@ -13,10 +15,10 @@ export const textInputForMenu = (content) => {
   );
 };
 
-export const textInputForHeader = (content) => {};
-
-const databaseRoot = (router, route) =>
-  `http://192.168.241.14:9000/${router}/${route}`;
+const databaseRoot = (router = "", route = "") => {
+  const baseUrl = Constants?.expoGoConfig?.debuggerHost.split(":").shift();
+  return `http://${baseUrl}:9000/${router}/${route}`;
+};
 
 export const deletetask = (tasks, index, setTasks) => {
   setTasks(tasks.filter((task, taskIndex) => taskIndex !== index));
@@ -106,25 +108,59 @@ export const searchDebounce = async (tableName, search) => {
   return searchResults;
 };
 
-export const submitAddAdmin = (data) => {
+export const submitAddAdmin = async (data) => {
   if (!data || typeof data !== "object") {
     alert("Invalid data.");
     return;
   }
 
-  const requiredFields = ["FirstName", "LastName", "Password", "AccessLevel", "Prison"];
+  const requiredFields = ["FirstName", "LastName", "Password", "Prison"];
 
-  // Check for missing or empty fields
   for (const field of requiredFields) {
-    if (data[field] === undefined || data[field] === "") {
+    if (!data[field]) {
       alert(`Invalid data. The field '${field}' is required and cannot be empty.`);
       return;
     }
   }
 
-  console.log("Data passed validation:", data);
+  const baseEmail = data["FirstName"] + "_" + data["LastName"] + "@jail.admin.pk";
+  let admin_email = baseEmail;
 
+  const requestData = {
+    admin_email,
+    prision_id: data["Prison"],
+    admin_password: data["Password"],
+  };
+
+  const root = databaseRoot("admin", "addAdmin");
+
+  for (let index = 1; true; index++) {
+    try {
+      const response = await axios.post(root, requestData);
+
+      alert("Admin added successfully!");
+      console.log("Response data:", response.data);
+      break;
+    } catch (error) {
+      if (error.response) {
+        const { status, data } = error.response;
+
+        if (status === HttpStatusCodes.CONFLICT && data?.data?.detail?.includes("admin_email")) {
+          admin_email = `${baseEmail}${index}`;
+          requestData.admin_email = admin_email;
+          continue;
+        } else {
+          alert(`Failed to add admin: ${data?.message || "Unknown error"}`);
+          break;
+        }
+      } else {
+        alert("An unexpected error occurred. Please try again later.");
+        break;
+      }
+    }
+  }
 };
+
 
 export const HttpStatusCodes = Object.freeze({
   // 200 - Success

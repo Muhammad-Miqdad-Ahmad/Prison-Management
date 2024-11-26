@@ -23,16 +23,6 @@ const AddAdminData = ({ data, setData }) => {
         data={data}
         maxLength={1}
         setData={setData}
-        label={"AccessLevel"}
-        keyboardType="numeric"
-      >
-        {"Mention the access level of the admin"}
-      </CustomTextInput>
-      <CustomBR />
-      <CustomTextInput
-        data={data}
-        maxLength={1}
-        setData={setData}
         label={"Prison"}
         keyboardType="numeric"
       >

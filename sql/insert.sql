@@ -21,7 +21,7 @@ VALUES
 (3, ROW('Sara', 'Ali', '1992-09-10', 32, 'Pakistani', 'Female'), '2021-03-10', 'Night', 11223);
 
 -- Insert into Prisoner
-INSERT INTO Prisoner (prision_id, person, sentence_start_date, sentence_end_date, status, visitor_1, visitor_2, sentence, crime)
+INSERT INTO Prisoner (prision_id, person, sentence_start_date, sentence_end_date, prisoner_status, visitor_1, visitor_2, sentence, crime)
 VALUES 
 (1, ROW('Riaz', 'Ahmed', '1985-07-20', 39, 'Pakistani', 'Male'), '2023-01-01', NULL, 'Active', 101, 102, '5 years', 'Theft'),
 (2, ROW('Zainab', 'Riaz', '1993-04-15', 31, 'Pakistani', 'Female'), '2022-08-15', '2026-08-14', 'Active', 103, NULL, '4 years', 'Fraud'),
