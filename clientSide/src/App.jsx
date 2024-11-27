@@ -6,8 +6,8 @@ function App() {
   return (
     <>
       <PoliceLogo />
-      <WelcomePage/>
-      {/* <CNICPage /> */}
+      {/* <WelcomePage/> */}
+      <CNICPage />
     </>
   );
 }

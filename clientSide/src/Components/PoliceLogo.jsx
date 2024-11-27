@@ -9,7 +9,7 @@ const RotatingModel = ({ url, position }) => {
 
   useFrame(() => {
     if (ref.current) {
-      ref.current.rotation.z += 0.015; // Rotate the model on the Y-axis
+      ref.current.rotation.z += 0.0225; // Rotate the model on the Y-axis
       ref.current.rotation.x = 1.5;
     }
   });
