@@ -1,11 +1,13 @@
-const mySQL = require("mysql2");
+
+const { Client } = require('pg');
 require("dotenv").config();
 
-const base = mySQL.createConnection({
-    host: "localhost",
-    user: "root",
-    password: process.env.DB_PASSWORD,
-    database: process.env.DATABASE,
-});
+const client = new Client({
+  user: process.env.USER,
+  host: process.env.HOST,
+  database: process.env.DATABASE,
+  password: process.env.DB_PASSWORD,
+  port: 5432,
+})
 
-module.exports = base
+module.exports = client;
