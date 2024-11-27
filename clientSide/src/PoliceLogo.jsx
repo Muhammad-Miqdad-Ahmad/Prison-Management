@@ -10,28 +10,24 @@ const RotatingModel = ({ url, position }) => {
   useFrame(() => {
     if (ref.current) {
       ref.current.rotation.z += 0.015; // Rotate the model on the Y-axis
+      ref.current.rotation.x = 1.5;
     }
   });
 
   return <primitive object={model.scene} ref={ref} position={position} />;
 };
 
-function Mouse() {
-  const { mouse } = useThree();
-
-  return useFrame(() => {
-    console.log(mouse.x, mouse.y, mouse.z);
-  });
-}
-
 // Main App Component
 function PoliceLogo() {
   return (
-    <Canvas camera={{ position: [0, 9, 0] }}>
-      <directionalLight position={[4, 12, 0]} intensity={1} />
+    <Canvas camera={{ position: [0, 0, 1] }}>
+      <directionalLight position={[3, 3, 9]} intensity={1} />
       <ambientLight intensity={0.5} />
-      <Mouse/>
-      <RotatingModel url="policeLogo.gltf" position={[0, 0, 0]} />
+      <RotatingModel url="policeLogo.gltf" position={[0, 0, -9]} />
+      {/* x is horizontal
+          y is depth
+          z is vertical */}
+      <OrbitControls />
     </Canvas>
   );
 }
