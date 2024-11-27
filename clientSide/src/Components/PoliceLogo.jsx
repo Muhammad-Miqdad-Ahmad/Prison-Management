@@ -27,7 +27,7 @@ function PoliceLogo() {
       {/* x is horizontal
           y is depth
           z is vertical */}
-      <OrbitControls />
+      {/* <OrbitControls /> */}
     </Canvas>
   );
 }
