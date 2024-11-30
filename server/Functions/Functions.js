@@ -7,49 +7,29 @@ async function generic_delete(
   HttpStatusCodes
 ) {
   try {
-    // Delete the prisoner record by prisoner_id
+    // Delete the record by the provided attribute and value
     const result = await client.query(
       `DELETE FROM ${table} WHERE ${attribute} = $1 RETURNING *`,
       [value]
     );
 
     if (result.rowCount === 0) {
-      // If no rows were affected, prisoner_id does not exist
+      // If no rows were affected, the record does not exist
       return res
         .status(HttpStatusCodes.NOT_FOUND)
         .json({ message: `No data to show for ${value}`, data: result });
     }
 
     // Return success response with the deleted record
-    res.status(HttpStatusCodes.OK).json({
+    return res.status(HttpStatusCodes.OK).json({
       message: "Deleted successfully.",
       data: result,
     });
   } catch (error) {
     console.error("Error deleting:", error);
 
-    // Handle PostgreSQL-specific errors
-    switch (error.code) {
-      case "23503":
-        return res.status(HttpStatusCodes.CONFLICT).json({
-          message: "Cannot delete. Record is referenced in another table.",
-          data: error,
-        });
-      case "42P01":
-        return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
-          message: `Table ${table} does not exist in the database.`,
-          data: error,
-        });
-      case "22P02":
-        return res
-          .status(HttpStatusCodes.BAD_REQUEST)
-          .json({ message: "Invalid prisoner ID format.", data: error });
-      default:
-        return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
-          message: "An unexpected error occurred while deleting the prisoner.",
-          data: error,
-        });
-    }
+    // Delegate error handling to the centralized error handler
+    return error_handler(res, HttpStatusCodes, error);
   }
 }
 
@@ -78,45 +58,37 @@ async function generic_update(
     }
   }
 
-  let query = `UPDATE ${table_name} SET `;
-  if (check.length === 0)
-    res.status(HttpStatusCodes.BAD_REQUEST).json({ message: "Data missing" });
+  if (check.length === 0) {
+    return res
+      .status(HttpStatusCodes.BAD_REQUEST)
+      .json({ message: "Data missing" });
+  }
 
+  let query = `UPDATE ${table_name} SET `;
   check.map((field, index) => {
     if (index > 0) query += ", ";
     query += `${field} = $${index + 1}`;
   });
-
   query += ` WHERE ${where} = ${ID}`;
 
-  return await client.query(query, fields, (error, results) => {
-    if (error) {
-      switch (error.code) {
-        case "23505":
-          return res.status(HttpStatusCodes.BAD_REQUEST).json({
-            message: "Duplicate entry",
-            data: error,
-          });
-        case "23502":
-          return res.status(HttpStatusCodes.BAD_REQUEST).json({
-            message: "Not null violation",
-            data: error,
-          });
-        default:
-          return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
-            message: "Error updating data",
-            data: error,
-          });
-      }
-    } else if (results?.rows?.length === 0)
+  try {
+    const result = await client.query(query, fields);
+
+    if (result?.rowCount === 0) {
       return res
         .status(HttpStatusCodes.NOT_FOUND)
-        .json({ message: "No data to display", data: results });
-    else
-      return res
-        .status(HttpStatusCodes.OK)
-        .json({ message: "Data updated successfully", data: results });
-  });
+        .json({ message: "No data to display", data: result });
+    }
+
+    return res
+      .status(HttpStatusCodes.OK)
+      .json({ message: "Data updated successfully", data: result });
+  } catch (error) {
+    console.error("Error updating data:", error);
+
+    // Delegate error handling to the centralized error handler
+    return error_handler(res, HttpStatusCodes, error);
+  }
 }
 
 async function generic_add(
@@ -239,46 +211,13 @@ async function generic_get(
           "Error creating function get_filtered_data_json:",
           createError
         );
-        return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
-          message: "Could not create the required function in the database.",
-          data: createError,
-        });
+        // Use error handler for errors during function creation
+        return error_handler(res, HttpStatusCodes, createError);
       }
     }
 
-    // Handle other PostgreSQL errors using `pgcodes`
-    switch (error.code) {
-      case "42P01": // Undefined table
-        return res.status(HttpStatusCodes.NOT_FOUND).json({
-          message: `Table "${table}" does not exist in the database.`,
-          data: error,
-        });
-
-      case "42703": // Undefined column
-        return res.status(HttpStatusCodes.BAD_REQUEST).json({
-          message: `Column "${attribute}" does not exist in table "${table}".`,
-          data: error,
-        });
-
-      case "22P02": // Invalid input syntax
-        return res.status(HttpStatusCodes.BAD_REQUEST).json({
-          message: `Invalid value for column "${attribute}". Check input format.`,
-          data: error,
-        });
-
-      case "42501": // Insufficient privilege
-        return res.status(HttpStatusCodes.FORBIDDEN).json({
-          message: `Permission denied for accessing table "${table}".`,
-          data: error,
-        });
-
-      default:
-        // For any other unexpected errors, return a generic internal server error
-        return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
-          message: "An unexpected error occurred while retrieving data.",
-          data: error,
-        });
-    }
+    // For all other errors, use the error handler
+    return error_handler(res, HttpStatusCodes, error);
   }
 }
 
@@ -388,4 +327,10 @@ function error_handler(res, HttpStatusCodes, error) {
   }
 }
 
-module.exports = { generic_delete, generic_update, generic_add, generic_get };
+module.exports = {
+  generic_delete,
+  generic_update,
+  generic_add,
+  generic_get,
+  error_handler,
+};

@@ -308,13 +308,15 @@ const UpdateAdmin = async (req, res) => {
 };
 
 const GetAdminData = async (req, res) => {
+  const admin_id = req.query.adminID;
   return generic_get(
     res,
     client,
     "admins",
     "admin_id",
-    1,
-    HttpStatusCodes);
+    admin_id,
+    HttpStatusCodes
+  );
 };
 
 const debounceSearch = async (req, res) => {
