@@ -40,19 +40,6 @@ const AddPersonData = ({ data, setData }) => {
     <PaperProvider theme={theme}>
       <ScrollView>
         <View style={[centre.centre, AdminAddPrisonerStyle.container]}>
-          {/* ID */}
-          <View style={{ width: "85%" }}>
-            <Button
-              mode="contained-tonal"
-              onPress={() => {
-                console.log("pressed");
-              }}
-            >
-              Press
-            </Button>
-          </View>
-          <CustomBR />
-
           {/* First name */}
           <CustomTextInput
             outlineColor="blue"

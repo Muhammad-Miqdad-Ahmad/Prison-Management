@@ -5,8 +5,7 @@ import ModeReducers from "../Reducers/ModeReducers";
 
 const root = combineReducers({
     admin: Reducers,
-    mode: ModeReducers
-
+    mode: ModeReducers,
 })
 
 const store = configureStore({
