@@ -4,6 +4,7 @@ const {
   generic_delete,
   generic_update,
   generic_add,
+  generic_get,
 } = require("../Functions/Functions");
 
 const buildQuery = (req, res) => {
@@ -307,33 +308,13 @@ const UpdateAdmin = async (req, res) => {
 };
 
 const GetAdminData = async (req, res) => {
-  const query = "SELECT * FROM chillarAdmins";
-  try {
-    // Execute the SQL query
-    client.query(query, (err, results) => {
-      if (err) {
-        console.error(err);
-        res.status(HttpStatusCodes.NOT_FOUND).json({
-          message: "AHHHHH fuck 😒\nHere we go again 🤦‍♂️",
-          data: err,
-        });
-      } else if (!results || results.length === 0) {
-        return res.status(HttpStatusCodes.NOT_FOUND).json({
-          message: "There aint no nigga with this fuck 🤮",
-          data: results,
-        });
-      } else {
-        res
-          .status(HttpStatusCodes.OK)
-          .json({ message: "Login successful", data: results });
-      }
-    });
-  } catch (error) {
-    console.error("Error during login:", error);
-    res
-      .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: "Internal server error" });
-  }
+  return generic_get(
+    res,
+    client,
+    "admins",
+    "admin_id",
+    1,
+    HttpStatusCodes);
 };
 
 const debounceSearch = async (req, res) => {
