@@ -114,15 +114,16 @@ class MainApp(QMainWindow):
         prisoner_widget = QWidget()
         layout = QVBoxLayout()
 
-        sentence_label = QLabel("Remaining Sentence:")
-        sentence_label.setStyleSheet(self.label_style)
-        self.sentence_display = QLabel("Your remaining sentence.")
-        self.sentence_display.setStyleSheet("font-size: 20px; color: #FFD700;")
+        prisoner_label = QLabel("Prisoner Dashboard")
+        prisoner_label.setStyleSheet(self.label_style)
 
-        visitation_label = QLabel("Upcoming Visitations:")
-        visitation_label.setStyleSheet(self.label_style)
-        self.visitation_display = QLabel("No upcoming visitations.")
-        self.visitation_display.setStyleSheet("font-size: 20px; color: #FFD700;")
+        self.remaining_sentence_button = QPushButton("Remaining Sentence")
+        self.remaining_sentence_button.setStyleSheet(self.button_style)
+        self.remaining_sentence_button.clicked.connect(self.show_remaining_sentence)
+
+        self.upcoming_visitation_button = QPushButton("Upcoming Visitations")
+        self.upcoming_visitation_button.setStyleSheet(self.button_style)
+        self.upcoming_visitation_button.clicked.connect(self.show_upcoming_visitations)
 
         self.complaint_button = QPushButton("Submit Complaint")
         self.complaint_button.setStyleSheet(self.button_style)
@@ -136,12 +137,9 @@ class MainApp(QMainWindow):
         logout_button.setStyleSheet(self.button_style)
         logout_button.clicked.connect(self.close)
 
-        layout.addWidget(QLabel("Prisoner Dashboard", alignment=Qt.AlignCenter).setStyleSheet(self.label_style))
-        layout.addWidget(sentence_label)
-        layout.addWidget(self.sentence_display)
-        layout.addWidget(visitation_label)
-        layout.addWidget(self.visitation_display)
-        layout.setAlignment(Qt.AlignTop)
+        layout.addWidget(prisoner_label, alignment=Qt.AlignCenter)
+        layout.addWidget(self.remaining_sentence_button)
+        layout.addWidget(self.upcoming_visitation_button)
         layout.addWidget(self.complaint_button)
         layout.addWidget(back_button)
         layout.addWidget(logout_button)
@@ -197,6 +195,17 @@ class MainApp(QMainWindow):
 
         self.qr_scanner_widget.setLayout(layout)
         self.stacked_widget.addWidget(self.qr_scanner_widget)
+    def show_remaining_sentence(self):
+        # Replace with actual logic to fetch and display the remaining sentence.
+        remaining_sentence = "2 years, 5 months, 10 days"  # Example value
+        self.sentence_display.setText(f"Your Remaining Sentence: {remaining_sentence}")
+        print(f"Remaining Sentence: {remaining_sentence}")
+
+    def show_upcoming_visitations(self):
+        # Replace with actual logic to fetch and display visitation details.
+        visitation_details = "Next visitation: December 15, 2024, at 2:00 PM"  # Example value
+        self.visitation_display.setText(f"Upcoming Visitations: {visitation_details}")
+        print(f"Upcoming Visitations: {visitation_details}")
 
     def set_check_in_mode(self):
         self.is_checking_in = True
