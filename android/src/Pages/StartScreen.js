@@ -5,7 +5,7 @@ import {
     Alert,
   } from "react-native";
   import React from "react";
-  import { centre, Splash } from "./Styling";
+  import { centre, Splash } from "../Styles/AdminStyling";
   
   const StartScreen = ({ navigation }) => {
     React.useEffect(() => {
