@@ -1,9 +1,5 @@
 import React, { lazy, Suspense, useEffect, useState } from "react";
-import {
-  View,
-  useColorScheme,
-  ScrollView,
-} from "react-native";
+import { View, useColorScheme, ScrollView } from "react-native";
 import CustomBR from "../Custom/customBR";
 import {
   RadioButton,
@@ -11,11 +7,18 @@ import {
   Provider as PaperProvider,
   MD3DarkTheme,
   MD3LightTheme,
+  Button,
 } from "react-native-paper";
-import { AdminAddPrisonerStyle, centre } from "../Styles/AdminStyling";
+import {
+  AdminAddPrisonerStyle,
+  AdminSearchStyle,
+  centre,
+} from "../Styles/AdminStyling";
 import { textInputForMenu } from "../Functions/Functions";
 import CustomTextInput from "../Custom/CustomTextinput";
 import CustomComponentLoader from "../Custom/CustomComponentLoader";
+import QRCode from "../Components/QRCode";
+import CustomSubmit from "../Custom/CustomSubmit";
 const CustomCountrySelector = lazy(() => import("../Custom/CountrySelector"));
 const CustomDatePicker = lazy(() => import("../Custom/CustomDatePicker"));
 
@@ -23,7 +26,6 @@ const AddPersonData = ({ data, setData }) => {
   const colorScheme = useColorScheme();
   const theme = colorScheme === "dark" ? MD3DarkTheme : MD3LightTheme;
   const [dateOfBirth, setDateOfBirth] = useState(undefined);
-
 
   useEffect(() => {
     if (!data) setData({});
@@ -37,9 +39,8 @@ const AddPersonData = ({ data, setData }) => {
   return (
     <PaperProvider theme={theme}>
       <ScrollView>
-        {/* Use CustomDatePicker with AddPrisoner fields as children */}
         <View style={[centre.centre, AdminAddPrisonerStyle.container]}>
-          {/* First name of the prisoner */}
+          {/* First name */}
           <CustomTextInput
             outlineColor="blue"
             activeOutlineColor="red"
@@ -51,7 +52,7 @@ const AddPersonData = ({ data, setData }) => {
           </CustomTextInput>
           <CustomBR />
 
-          {/* Last name of the prisoner */}
+          {/* Last name */}
           <CustomTextInput
             outlineColor="blue"
             activeOutlineColor="red"
@@ -101,8 +102,16 @@ const AddPersonData = ({ data, setData }) => {
           </CustomTextInput>
           <CustomBR />
         </View>
-        <Suspense fallback={<CustomComponentLoader hite={150} size={50} color="#d17bf6" />}>
-          <CustomDatePicker date={dateOfBirth} setDate={setDateOfBirth} theme={theme}>
+        <Suspense
+          fallback={
+            <CustomComponentLoader hite={150} size={50} color="#d17bf6" />
+          }
+        >
+          <CustomDatePicker
+            date={dateOfBirth}
+            setDate={setDateOfBirth}
+            theme={theme}
+          >
             <Text></Text>
             {"Date of Birth"}
           </CustomDatePicker>
@@ -112,7 +121,11 @@ const AddPersonData = ({ data, setData }) => {
           <CustomBR />
 
           {/* Nationality */}
-          <Suspense fallback={<CustomComponentLoader hite={150} size={50} color="#d17bf6" />}>
+          <Suspense
+            fallback={
+              <CustomComponentLoader hite={150} size={50} color="#d17bf6" />
+            }
+          >
             <CustomCountrySelector />
           </Suspense>
         </View>

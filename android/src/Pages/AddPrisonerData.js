@@ -1,20 +1,26 @@
 import React, { lazy, Suspense, useEffect, useState } from "react";
-import { View, useColorScheme, ScrollView } from "react-native";
+import { View, useColorScheme, ScrollView, Text } from "react-native";
 import CustomBR from "../Custom/customBR";
 import {
   Provider as PaperProvider,
   MD3DarkTheme,
   MD3LightTheme,
+  Button,
 } from "react-native-paper";
 import { AdminAddPrisonerStyle, centre } from "../Styles/AdminStyling";
 import CustomTextInput from "../Custom/CustomTextinput";
 import CustomComponentLoader from "../Custom/CustomComponentLoader";
 const CustomDatePicker = lazy(() => import("../Custom/CustomDatePicker"));
+import { textInputForMenu } from "../Functions/Functions";
 
-const AddPrisonerData = ({ data, setData }) => {
+const AddPrisonerData = ({ data, setData, setscan }) => {
   const colorScheme = useColorScheme();
   const theme = colorScheme === "dark" ? MD3DarkTheme : MD3LightTheme;
   const [dateOfCapture, setdateOfCapture] = useState(undefined);
+
+  const getScanedID = (someID) => {
+    setData({ ...data, prisonerID: someID });
+  };
 
   useEffect(() => {
     if (!data) setData({});
@@ -30,16 +36,30 @@ const AddPrisonerData = ({ data, setData }) => {
       <ScrollView>
         {/* Use CustomDatePicker with AddPrisoner fields as children */}
         <View style={[centre.centre, AdminAddPrisonerStyle.container]}>
-          {/* ID of the prisoner */}
-          <CustomTextInput
-            outlineColor="blue"
-            activeOutlineColor="red"
-            label="prisonerID"
-            data={data}
-            setData={setData}
-          >
-            {"Enter The Prisoner ID"}
-          </CustomTextInput>
+          {/* ID */}
+          <View style={AdminAddPrisonerStyle.textDiv}>
+            <Text
+              style={[
+                AdminAddPrisonerStyle.text,
+                AdminAddPrisonerStyle.dateHeadingText,
+              ]}
+            >
+              The Prisoner ID is
+            </Text>
+          </View>
+          {data?.prisonerID ? textInputForMenu(`${data?.prisonerID}`) : null}
+          <CustomBR />
+          <View style={{ width: "85%" }}>
+            <Button
+              mode="contained-tonal"
+              onPress={() => {
+                console.log("pressed");
+                setscan({ label: "prisonerID", scan: false });
+              }}
+            >
+              Scan For Prisoner ID
+            </Button>
+          </View>
           <CustomBR />
 
           {/* Prison of the prisoner */}
@@ -53,7 +73,7 @@ const AddPrisonerData = ({ data, setData }) => {
             {"Enter The Prison ID of where the prisoner is held"}
           </CustomTextInput>
           <CustomBR />
-          
+
           {/* Status of the prisoner */}
           <CustomTextInput
             outlineColor="blue"

@@ -7,49 +7,29 @@ async function generic_delete(
   HttpStatusCodes
 ) {
   try {
-    // Delete the prisoner record by prisoner_id
+    // Delete the record by the provided attribute and value
     const result = await client.query(
       `DELETE FROM ${table} WHERE ${attribute} = $1 RETURNING *`,
       [value]
     );
 
     if (result.rowCount === 0) {
-      // If no rows were affected, prisoner_id does not exist
+      // If no rows were affected, the record does not exist
       return res
         .status(HttpStatusCodes.NOT_FOUND)
         .json({ message: `No data to show for ${value}`, data: result });
     }
 
     // Return success response with the deleted record
-    res.status(HttpStatusCodes.OK).json({
+    return res.status(HttpStatusCodes.OK).json({
       message: "Deleted successfully.",
       data: result,
     });
   } catch (error) {
     console.error("Error deleting:", error);
 
-    // Handle PostgreSQL-specific errors
-    switch (error.code) {
-      case "23503":
-        return res.status(HttpStatusCodes.CONFLICT).json({
-          message: "Cannot delete. Record is referenced in another table.",
-          data: error,
-        });
-      case "42P01":
-        return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
-          message: `Table ${table} does not exist in the database.`,
-          data: error,
-        });
-      case "22P02":
-        return res
-          .status(HttpStatusCodes.BAD_REQUEST)
-          .json({ message: "Invalid prisoner ID format.", data: error });
-      default:
-        return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
-          message: "An unexpected error occurred while deleting the prisoner.",
-          data: error,
-        });
-    }
+    // Delegate error handling to the centralized error handler
+    return error_handler(res, HttpStatusCodes, error);
   }
 }
 
@@ -78,45 +58,37 @@ async function generic_update(
     }
   }
 
-  let query = `UPDATE ${table_name} SET `;
-  if (check.length === 0)
-    res.status(HttpStatusCodes.BAD_REQUEST).json({ message: "Data missing" });
+  if (check.length === 0) {
+    return res
+      .status(HttpStatusCodes.BAD_REQUEST)
+      .json({ message: "Data missing" });
+  }
 
+  let query = `UPDATE ${table_name} SET `;
   check.map((field, index) => {
     if (index > 0) query += ", ";
     query += `${field} = $${index + 1}`;
   });
-
   query += ` WHERE ${where} = ${ID}`;
 
-  return await client.query(query, fields, (error, results) => {
-    if (error) {
-      switch (error.code) {
-        case "23505":
-          return res.status(HttpStatusCodes.BAD_REQUEST).json({
-            message: "Duplicate entry",
-            data: error,
-          });
-        case "23502":
-          return res.status(HttpStatusCodes.BAD_REQUEST).json({
-            message: "Not null violation",
-            data: error,
-          });
-        default:
-          return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
-            message: "Error updating data",
-            data: error,
-          });
-      }
-    } else if (results?.rows?.length === 0)
+  try {
+    const result = await client.query(query, fields);
+
+    if (result?.rowCount === 0) {
       return res
         .status(HttpStatusCodes.NOT_FOUND)
-        .json({ message: "No data to display", data: results });
-    else
-      return res
-        .status(HttpStatusCodes.OK)
-        .json({ message: "Data updated successfully", data: results });
-  });
+        .json({ message: "No data to display", data: result });
+    }
+
+    return res
+      .status(HttpStatusCodes.OK)
+      .json({ message: "Data updated successfully", data: result });
+  } catch (error) {
+    console.error("Error updating data:", error);
+
+    // Delegate error handling to the centralized error handler
+    return error_handler(res, HttpStatusCodes, error);
+  }
 }
 
 async function generic_add(
@@ -165,4 +137,200 @@ async function generic_add(
   }
 }
 
-module.exports = { generic_delete, generic_update, generic_add };
+async function generic_get(
+  res,
+  client,
+  table,
+  attribute,
+  value,
+  HttpStatusCodes
+) {
+  try {
+    // Check if input values are provided
+    if (!table || !attribute || !value) {
+      return res.status(HttpStatusCodes.BAD_REQUEST).json({
+        message: "Missing required parameters: table, attribute, or value.",
+      });
+    }
+
+    // Build the query for calling the database function
+    const query = `SELECT * FROM get_filtered_data_json($1, $2, $3)`;
+    const result = await client.query(query, [table, attribute, value]);
+
+    // If query executes successfully, return the result
+    return res.status(HttpStatusCodes.OK).json({
+      message: "Data fetched successfully.",
+      data: result,
+    });
+  } catch (error) {
+    console.error("Error fetching data:", error);
+
+    // Check if the error is because the function does not exist
+    if (error.code === "42883") {
+      // PostgreSQL error code for "undefined function"
+      console.log(
+        "Function get_filtered_data_json does not exist. Creating it..."
+      );
+
+      // Create the missing function
+      const createFunctionQuery = `
+        CREATE OR REPLACE FUNCTION get_filtered_data_json(
+          table_name TEXT,
+          column_name TEXT,
+          filter_value TEXT
+        )
+        RETURNS SETOF JSON AS $$
+        BEGIN
+          RETURN QUERY EXECUTE format(
+            'SELECT row_to_json(t) FROM (SELECT * FROM %I WHERE %I = %L) t',
+            table_name,
+            column_name,
+            filter_value
+          );
+        END;
+        $$ LANGUAGE plpgsql;
+      `;
+
+      try {
+        // Execute the query to create the function
+        await client.query(createFunctionQuery);
+        console.log("Function get_filtered_data_json created successfully.");
+
+        // Retry the original query
+        const retryResult = await client.query(query, [
+          table,
+          attribute,
+          value,
+        ]);
+        return res.status(HttpStatusCodes.OK).json({
+          message: "Data fetched successfully after creating function.",
+          data: retryResult,
+        });
+      } catch (createError) {
+        console.error(
+          "Error creating function get_filtered_data_json:",
+          createError
+        );
+        // Use error handler for errors during function creation
+        return error_handler(res, HttpStatusCodes, createError);
+      }
+    }
+
+    // For all other errors, use the error handler
+    return error_handler(res, HttpStatusCodes, error);
+  }
+}
+
+function error_handler(res, HttpStatusCodes, error) {
+  switch (error.code) {
+    // Syntax error or access rule violation
+    case "42601": // Syntax error
+    case "42501": // Insufficient privilege
+      res.status(HttpStatusCodes.BAD_REQUEST).json({
+        message: "Invalid SQL syntax or insufficient privileges",
+        data: error,
+      });
+      break;
+
+    // Integrity constraint violations
+    case "23502": // Not null violation
+      res.status(HttpStatusCodes.BAD_REQUEST).json({
+        message: "A required field is missing",
+        data: error,
+      });
+      break;
+    case "23503": // Foreign key violation
+      res.status(HttpStatusCodes.BAD_REQUEST).json({
+        message: "Foreign key constraint violated",
+        data: error,
+      });
+      break;
+    case "23505": // Unique violation
+      res.status(HttpStatusCodes.CONFLICT).json({
+        message: "Duplicate entry violates unique constraint",
+        data: error,
+      });
+      break;
+
+    // Check constraint violation
+    case "23514": // Check constraint violation
+      res.status(HttpStatusCodes.BAD_REQUEST).json({
+        message: "Check constraint violated",
+        data: error,
+      });
+      break;
+
+    // Invalid text representation
+    case "22P02": // Invalid input syntax for type
+      res.status(HttpStatusCodes.BAD_REQUEST).json({
+        message: "Invalid data format provided",
+        data: error,
+      });
+      break;
+
+    // Data type issues
+    case "42804": // Data type mismatch
+      res.status(HttpStatusCodes.BAD_REQUEST).json({
+        message: "Data type mismatch",
+        data: error,
+      });
+      break;
+
+    // Division by zero
+    case "22012": // Division by zero
+      res.status(HttpStatusCodes.BAD_REQUEST).json({
+        message: "Division by zero is not allowed",
+        data: error,
+      });
+      break;
+
+    // Numeric value out of range
+    case "22003": // Numeric value out of range
+      res.status(HttpStatusCodes.BAD_REQUEST).json({
+        message: "Numeric value is out of range",
+        data: error,
+      });
+      break;
+
+    // String length exceeded
+    case "22001": // String data right truncation
+      res.status(HttpStatusCodes.BAD_REQUEST).json({
+        message: "String length exceeds the defined limit",
+        data: error,
+      });
+      break;
+
+    // Resource not found
+    case "42P01": // Undefined table
+      res.status(HttpStatusCodes.NOT_FOUND).json({
+        message: "Referenced table not found in the database",
+        data: error,
+      });
+      break;
+
+    // Service unavailable
+    case "53300": // Too many connections
+    case "57P03": // Cannot connect now
+      res.status(HttpStatusCodes.SERVICE_UNAVAILABLE).json({
+        message: "Database is currently unavailable",
+        data: error,
+      });
+      break;
+
+    // Generic server error
+    default:
+      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: "An unexpected error occurred",
+        data: error,
+      });
+      break;
+  }
+}
+
+module.exports = {
+  generic_delete,
+  generic_update,
+  generic_add,
+  generic_get,
+  error_handler,
+};
