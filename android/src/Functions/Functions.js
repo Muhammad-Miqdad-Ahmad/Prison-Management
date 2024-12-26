@@ -390,6 +390,77 @@ export const submitAddGuard = async (data) => {
   }
 };
 
+export const submitDeleteGuard = async (data) => {
+  if (!data) {
+    alert("Invalid data.");
+    return;
+  }
+
+  const root = databaseRoot("admin", "deleteGuard") + "?guardID=" + data;
+
+  try {
+    const response = await axios.delete(root);
+    console.log("Response data:", response?.data?.message);
+    alert("Guard deleted successfully!");
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      if (data?.message === "Guard not found") alert(`No guard with this id`);
+      else {
+        alert(`Failed to delete guard: ${data?.message || "Unknown error"}`);
+      }
+    } else {
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
+};
+
+export const submitUpdateGuard = async (data) => {
+  if (
+    !data ||
+    typeof data !== "object" ||
+    data.length === 0 ||
+    !data["guardID"]
+  ) {
+    alert("Invalid data.");
+    return;
+  }
+
+  const requiredFields = ["FirstName", "LastName", "Age", "Gender", "Shift"];
+
+  const requestData = {};
+
+  for (const field in data) {
+    if (field === "guardID") continue;
+    if (!requiredFields.includes(field)) {
+      alert(`Invalid data. The field '${field}' cannot be updated.`);
+      return;
+    }
+  }
+
+  for (const field in data) {
+    requestData[field] = data[field];
+  }
+
+  const root = databaseRoot("admin", "updateGuard");
+try {
+    const response = await axios.put(root, requestData);
+    console.log("Response data:", response?.data?.message);
+    alert("Guard updated successfully!");
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      if (data?.message === "Guard not found") alert(`No guard with this id`);
+      else {
+        alert(`Failed to update guard: ${data?.message || "Unknown error"}`);
+      }
+    } else {
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
+
+};
+
 export const HttpStatusCodes = Object.freeze({
   // 200 - Success
   OK: 200,

@@ -297,9 +297,15 @@ const UpdatePrisoner = async (req, res) => {
 };
 
 const UpdateGuard = async (req, res) => {
-  const { shift } = req.body;
+  const { FirstName, LastName, Age, gender, guardShift } = req.body;
 
-  const requiredFields = { shift };
+  const requiredFields = {
+    FirstName,
+    LastName,
+    Age,
+    gender,
+    guardShift,
+  };
 
   return generic_update(
     res,
