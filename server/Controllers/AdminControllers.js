@@ -216,9 +216,9 @@ const AddAdmin = async (req, res) => {
 };
 
 const DeletePrisoner = async (req, res) => {
+  console.log("in here");
   const ID = req.query.prisonerID;
 
-  console.log("in here");
 
   if (!ID) {
     return res
