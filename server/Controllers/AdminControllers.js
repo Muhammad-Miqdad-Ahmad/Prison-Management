@@ -38,7 +38,7 @@ const check = (req, res) => {
     if (err) {
       console.error(err);
       return res.status(HttpStatusCodes.NOT_FOUND).json({
-        message: "AHHHHH fuck 😒\nHere we go again 🤦‍♂️",
+        message: "Just a message",
         data: err,
       });
     } else {
@@ -64,21 +64,17 @@ const AdminLogin = async (req, res) => {
     // Execute the SQL query
     client.query(query, [email], (err, results) => {
       if (err) {
-        console.log("in if");
         console.error(err);
         return res.status(HttpStatusCodes.NOT_FOUND).json({
           message: "AHHHHH fuck 😒\nHere we go again 🤦‍♂️",
           data: err,
         });
       } else if (!results || results.length === 0) {
-        console.log("in else if");
         return res.status(HttpStatusCodes.NOT_FOUND).json({
-          message: "There aint no nigga with this fuck 🤮",
+          message: "There Is no Admin with these credentials 🤮",
           data: results,
         });
       } else {
-        console.log("in else");
-
         if (results[0].adminPassword === password) {
           return res
             .status(HttpStatusCodes.OK)
@@ -127,13 +123,14 @@ const AddPrisoner = async (req, res) => {
     } else requiredFields.push(value);
   }
 
+  // // Explicitly cast `visitor_1`, `visitor_2`, and `prisoner_id` to NUMERIC
   const query = `
     INSERT INTO Prisoner (
       prision_id, 
       person, 
       sentence_start_date, 
       sentence_end_date, 
-      status,
+      prisoner_status,
       crime,
       sentence, 
       visitor_1, 
@@ -141,13 +138,17 @@ const AddPrisoner = async (req, res) => {
       prisoner_id
     ) 
     VALUES(
-    $1, 
-    ROW($2, $3, $4, $5, $6, $7), 
-    $8, $9, $10, $11, $12, $13, $14, $15
+      $1, 
+      ROW($2, $3, $4, $5, $6, $7), 
+      $8, $9, $10, $11, $12, 
+      CAST($13 AS NUMERIC), 
+      CAST($14 AS NUMERIC), 
+      CAST($15 AS NUMERIC)
     );`;
 
   return generic_add(res, query, requiredFields, client, HttpStatusCodes);
 };
+
 
 const AddGuard = async (req, res) => {
   const values = ({
@@ -216,6 +217,8 @@ const AddAdmin = async (req, res) => {
 
 const DeletePrisoner = async (req, res) => {
   const ID = req.query.prisonerID;
+
+  console.log("in here");
 
   if (!ID) {
     return res

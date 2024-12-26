@@ -1,3 +1,5 @@
+const { text } = require("express");
+
 async function generic_delete(
   res,
   table,
@@ -99,7 +101,13 @@ async function generic_add(
   HttpStatusCodes
 ) {
   try {
-    const result = await client.query(query, requiredFields);
+    console.log("Sending query");
+    const result = await client.query({
+      text: query,
+      values: requiredFields,
+      statement_timeout: 5000,
+    });
+    console.log("Got results");
 
     if (result.rowCount === 0) {
       return res.status(HttpStatusCodes.NO_CONTENT).json({
@@ -112,29 +120,13 @@ async function generic_add(
       data: result,
     });
   } catch (error) {
-    switch (error.code) {
-      case "23505":
-        return res
-          .status(HttpStatusCodes.CONFLICT)
-          .json({ message: `Data already exists`, data: error });
-      case "23502":
-        return res.status(HttpStatusCodes.BAD_REQUEST).json({
-          message: "One or more required fields are missing",
-          data: error,
-        });
-      case "23503":
-        return res.status(HttpStatusCodes.BAD_REQUEST).json({
-          message: "Invalid prison ID",
-          data: error,
-        });
-      default:
-        console.error("Unexpected error:", error);
-        return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
-          message: "Could not create",
-          data: error,
-        });
-    }
+    console.log("Sad");
+    console.log(error);
+    return error_handler(res, HttpStatusCodes, error);
   }
+  return res
+    .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+    .json({ message: "And unexpected" });
 }
 
 async function generic_get(
@@ -226,7 +218,7 @@ function error_handler(res, HttpStatusCodes, error) {
     // Syntax error or access rule violation
     case "42601": // Syntax error
     case "42501": // Insufficient privilege
-      res.status(HttpStatusCodes.BAD_REQUEST).json({
+      return res.status(HttpStatusCodes.BAD_REQUEST).json({
         message: "Invalid SQL syntax or insufficient privileges",
         data: error,
       });
@@ -234,19 +226,21 @@ function error_handler(res, HttpStatusCodes, error) {
 
     // Integrity constraint violations
     case "23502": // Not null violation
-      res.status(HttpStatusCodes.BAD_REQUEST).json({
+      return res.status(HttpStatusCodes.BAD_REQUEST).json({
         message: "A required field is missing",
         data: error,
       });
       break;
     case "23503": // Foreign key violation
-      res.status(HttpStatusCodes.BAD_REQUEST).json({
+      console.log("Foreign key constrain error");
+      return res.status(HttpStatusCodes.BAD_REQUEST).json({
         message: "Foreign key constraint violated",
         data: error,
       });
       break;
     case "23505": // Unique violation
-      res.status(HttpStatusCodes.CONFLICT).json({
+      console.log("unique key violation");
+      return res.status(HttpStatusCodes.CONFLICT).json({
         message: "Duplicate entry violates unique constraint",
         data: error,
       });
@@ -254,7 +248,8 @@ function error_handler(res, HttpStatusCodes, error) {
 
     // Check constraint violation
     case "23514": // Check constraint violation
-      res.status(HttpStatusCodes.BAD_REQUEST).json({
+      console.log("Check constrain violated");
+      return res.status(HttpStatusCodes.BAD_REQUEST).json({
         message: "Check constraint violated",
         data: error,
       });
@@ -262,7 +257,7 @@ function error_handler(res, HttpStatusCodes, error) {
 
     // Invalid text representation
     case "22P02": // Invalid input syntax for type
-      res.status(HttpStatusCodes.BAD_REQUEST).json({
+      return res.status(HttpStatusCodes.BAD_REQUEST).json({
         message: "Invalid data format provided",
         data: error,
       });
@@ -270,7 +265,7 @@ function error_handler(res, HttpStatusCodes, error) {
 
     // Data type issues
     case "42804": // Data type mismatch
-      res.status(HttpStatusCodes.BAD_REQUEST).json({
+      return res.status(HttpStatusCodes.BAD_REQUEST).json({
         message: "Data type mismatch",
         data: error,
       });
@@ -278,7 +273,7 @@ function error_handler(res, HttpStatusCodes, error) {
 
     // Division by zero
     case "22012": // Division by zero
-      res.status(HttpStatusCodes.BAD_REQUEST).json({
+      return res.status(HttpStatusCodes.BAD_REQUEST).json({
         message: "Division by zero is not allowed",
         data: error,
       });
@@ -286,7 +281,7 @@ function error_handler(res, HttpStatusCodes, error) {
 
     // Numeric value out of range
     case "22003": // Numeric value out of range
-      res.status(HttpStatusCodes.BAD_REQUEST).json({
+      return res.status(HttpStatusCodes.BAD_REQUEST).json({
         message: "Numeric value is out of range",
         data: error,
       });
@@ -294,7 +289,7 @@ function error_handler(res, HttpStatusCodes, error) {
 
     // String length exceeded
     case "22001": // String data right truncation
-      res.status(HttpStatusCodes.BAD_REQUEST).json({
+      return res.status(HttpStatusCodes.BAD_REQUEST).json({
         message: "String length exceeds the defined limit",
         data: error,
       });
@@ -302,7 +297,7 @@ function error_handler(res, HttpStatusCodes, error) {
 
     // Resource not found
     case "42P01": // Undefined table
-      res.status(HttpStatusCodes.NOT_FOUND).json({
+      return res.status(HttpStatusCodes.NOT_FOUND).json({
         message: "Referenced table not found in the database",
         data: error,
       });
@@ -311,7 +306,7 @@ function error_handler(res, HttpStatusCodes, error) {
     // Service unavailable
     case "53300": // Too many connections
     case "57P03": // Cannot connect now
-      res.status(HttpStatusCodes.SERVICE_UNAVAILABLE).json({
+      return res.status(HttpStatusCodes.SERVICE_UNAVAILABLE).json({
         message: "Database is currently unavailable",
         data: error,
       });
@@ -319,7 +314,7 @@ function error_handler(res, HttpStatusCodes, error) {
 
     // Generic server error
     default:
-      res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
+      return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
         message: "An unexpected error occurred",
         data: error,
       });

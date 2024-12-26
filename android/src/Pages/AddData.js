@@ -7,18 +7,11 @@ import {
   Provider as PaperProvider,
   MD3DarkTheme,
   MD3LightTheme,
-  Button,
 } from "react-native-paper";
-import {
-  AdminAddPrisonerStyle,
-  AdminSearchStyle,
-  centre,
-} from "../Styles/AdminStyling";
+import { AdminAddPrisonerStyle, centre } from "../Styles/AdminStyling";
 import { textInputForMenu } from "../Functions/Functions";
 import CustomTextInput from "../Custom/CustomTextinput";
 import CustomComponentLoader from "../Custom/CustomComponentLoader";
-import QRCode from "../Components/QRCode";
-import CustomSubmit from "../Custom/CustomSubmit";
 const CustomCountrySelector = lazy(() => import("../Custom/CountrySelector"));
 const CustomDatePicker = lazy(() => import("../Custom/CustomDatePicker"));
 
@@ -28,13 +21,11 @@ const AddPersonData = ({ data, setData }) => {
   const [dateOfBirth, setDateOfBirth] = useState(undefined);
 
   useEffect(() => {
-    if (!data) setData({});
-    else console.log(data);
-  }, []);
-
-  useEffect(() => {
-    setData({ ...data, dateOfBirth: dateOfBirth }); // Update data state
-  }, [dateOfBirth]);
+    if (data === undefined || data === null || typeof data !== 'object') {
+      console.log("I am changing data because data was: ", data);
+      setData({});
+    }
+  }, [data]);
 
   return (
     <PaperProvider theme={theme}>
@@ -97,6 +88,7 @@ const AddPersonData = ({ data, setData }) => {
             label="Age"
             data={data}
             setData={setData}
+            keyboardType="number-pad"
           >
             {"Enter The Age of The Prisoner"}
           </CustomTextInput>
@@ -108,8 +100,11 @@ const AddPersonData = ({ data, setData }) => {
           }
         >
           <CustomDatePicker
+            data={data}
+            setData={setData}
             date={dateOfBirth}
             setDate={setDateOfBirth}
+            lable={"dateOfBirth"}
             theme={theme}
           >
             <Text></Text>
@@ -126,7 +121,7 @@ const AddPersonData = ({ data, setData }) => {
               <CustomComponentLoader hite={150} size={50} color="#d17bf6" />
             }
           >
-            <CustomCountrySelector />
+            <CustomCountrySelector countrySetter={setData} data={data} />
           </Suspense>
         </View>
       </ScrollView>

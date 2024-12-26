@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Keyboard, ScrollView, TouchableWithoutFeedback } from "react-native";
 import { List } from "react-native-paper";
-import CustomSubmit from "../../Custom/CustomSubmit";
 import QRcode from "../../Components/QRCode";
 
 const dismissKeyboard = () => {
@@ -12,6 +11,10 @@ export const GenericTab = ({ route }) => {
   const [expanded, setExpanded] = useState(null);
   const [data, setData] = useState({});
   const [scan, setscan] = useState({scan: true});
+
+  useEffect(()=>{
+    console.log("Data changed: ",data);
+  },[data]);
 
   const handlePress = (index) => {
     setExpanded(expanded === index ? null : index);
@@ -47,7 +50,6 @@ export const GenericTab = ({ route }) => {
               })
             );
           })}
-          <CustomSubmit callback={route?.params?.submitCallBack} data={data} />
         </ScrollView>
       </TouchableWithoutFeedback>
     );

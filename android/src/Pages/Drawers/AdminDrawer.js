@@ -16,7 +16,8 @@ import { LogBox } from "react-native";
 import AddGuardData from "../AddGuardData";
 import AddAdminData from "../AddAdminData";
 import AddPrisonerData from "../AddPrisonerData";
-import { submitAddAdmin } from "../../Functions/Functions";
+
+import RemovePrisoner from "../Tabs/RemovePrisoner";
 
 LogBox.ignoreLogs([
   "Non-serializable values were found in the navigation state",
@@ -42,17 +43,17 @@ const AdminDrawer = ({ navigation }) => {
       ],
       barColor: "blue",
       activeIconColor: "#FFFFFF",
-      callBack: console.log,
+      callBack: "submitAddPrisoner",        // the call back to add the pisoner
     },
     {
       text: "Remove",
       route: GenericTab,
       iconName: "trash",
-      component: [<RemovePerson />],
+      component: [<RemovePrisoner />],
       componentText: [""],
       barColor: "red",
       activeIconColor: "#FFFFFF",
-      callBack: console.log,
+      callBack: "submitDeletePrisoner",
     },
     {
       text: "Update",
@@ -106,7 +107,7 @@ const AdminDrawer = ({ navigation }) => {
       componentText: [""],
       barColor: "blue",
       activeIconColor: "#FFFFFF",
-      callBack: submitAddAdmin,
+      callBack: "submitAddAdmin",
     },
     {
       text: "Remove",

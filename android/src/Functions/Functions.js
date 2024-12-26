@@ -118,12 +118,15 @@ export const submitAddAdmin = async (data) => {
 
   for (const field of requiredFields) {
     if (!data[field]) {
-      alert(`Invalid data. The field '${field}' is required and cannot be empty.`);
+      alert(
+        `Invalid data. The field '${field}' is required and cannot be empty.`
+      );
       return;
     }
   }
 
-  const baseEmail = data["FirstName"] + "_" + data["LastName"] + "@jail.admin.pk";
+  const baseEmail =
+    data["FirstName"] + "_" + data["LastName"] + "@jail.admin.pk";
   let admin_email = baseEmail;
 
   const requestData = {
@@ -145,7 +148,10 @@ export const submitAddAdmin = async (data) => {
       if (error.response) {
         const { status, data } = error.response;
 
-        if (status === HttpStatusCodes.CONFLICT && data?.data?.detail?.includes("admin_email")) {
+        if (
+          status === HttpStatusCodes.CONFLICT &&
+          data?.data?.detail?.includes("admin_email")
+        ) {
           admin_email = `${baseEmail}${index}`;
           requestData.admin_email = admin_email;
           continue;
@@ -161,6 +167,108 @@ export const submitAddAdmin = async (data) => {
   }
 };
 
+export const submitAddPrisoner = async (data) => {
+  console.log("I am here");
+
+  if (!data || typeof data !== "object") {
+    alert("Invalid data.");
+    return;
+  }
+
+  const requiredFields = [
+    "Age",
+    "FirstName",
+    "LastName",
+    "dateOfBirth",
+    "dateOfCapture",
+    "gender",
+    "prisonID",
+    "prisonerID",
+    "prisonerSentence",
+    "prisonerStatus",
+    "relative_1",
+    "relative_2",
+    "dateOfRelease",
+    "prisonerCrime",
+    "nationality",
+  ];
+
+  for (const field of requiredFields) {
+    if (!data[field]) {
+      alert(
+        `Invalid data. The field '${field}' is required and cannot be empty.`
+      );
+      return;
+    }
+  }
+
+  const requestData = [
+    (prisonID = data["prisonID"]),
+    (FirstName = data["FirstName"]),
+    (LastName = data["LastName"]),
+    (dateOfBirth = data["dateOfBirth"]),
+    (prisonerAge = data["Age"]),
+    (prisonerNationality = data["nationality"]),
+    (prisonerGender = data["gender"]),
+    (dateOfCapture = data["dateOfCapture"]),
+    (dateOfRelease = data["dateOfRelease"]),
+    (prisonerStatus = data["prisonerStatus"]),
+    (prisonerCrime = data["prisonerCrime"]),
+    (prisonerSentence = data["prisonerSentence"]),
+    (relative1 = data["relative_1"]),
+    (relative2 = data["relative_2"]),
+    (prisonerID = data["prisonerID"]),
+  ];
+
+  const root = databaseRoot("admin", "addPrisoner");
+
+  try {
+    const response = await axios.post(root, requestData);
+    console.log("Response data:", response?.data?.message);
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      if (data?.message === "Duplicate entry violates unique constraint")
+        alert(`Already a prisoner with this id`);
+      else {
+        alert(`Failed to add prisoner: ${data?.message || "Unknown error"}`);
+      }
+    } else {
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
+};
+
+export const submitDeletePrisoner = async (data) => {
+  if (!data) {
+    alert("Invalid data.");
+    return;
+  }
+
+  const requestData = {
+    prisonerID: data,
+  };
+
+  const root = databaseRoot("admin", "deletePrisoner");
+
+  console.log(root);
+
+  try {
+    const response = await axios.post(root, requestData);
+    console.log("Response data:", response?.data?.message);
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      if (data?.message === "Prisoner not found")
+        alert(`No prisoner with this id`);
+      else {
+        alert(`Failed to delete prisoner: ${data?.message || "Unknown error"}`);
+      }
+    } else {
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
+};
 
 export const HttpStatusCodes = Object.freeze({
   // 200 - Success
