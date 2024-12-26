@@ -18,6 +18,7 @@ import AddAdminData from "../AddAdminData";
 import AddPrisonerData from "../AddPrisonerData";
 
 import RemovePrisoner from "../Tabs/RemovePrisoner";
+import UpdatePrisoner from "../Tabs/UpdatePrisoner";
 
 LogBox.ignoreLogs([
   "Non-serializable values were found in the navigation state",
@@ -59,7 +60,7 @@ const AdminDrawer = ({ navigation }) => {
       text: "Update",
       route: GenericTab,
       iconName: "edit",
-      component: [<UpdateData />],
+      component: [<UpdatePrisoner />],
       componentText: [""],
       barColor: "yellow",
       activeIconColor: "#000000",

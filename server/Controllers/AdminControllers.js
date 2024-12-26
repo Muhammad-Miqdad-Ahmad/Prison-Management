@@ -149,7 +149,6 @@ const AddPrisoner = async (req, res) => {
   return generic_add(res, query, requiredFields, client, HttpStatusCodes);
 };
 
-
 const AddGuard = async (req, res) => {
   const values = ({
     guardID,
@@ -219,7 +218,6 @@ const DeletePrisoner = async (req, res) => {
   console.log("in here");
   const ID = req.query.prisonerID;
 
-
   if (!ID) {
     return res
       .status(HttpStatusCodes.BAD_REQUEST)
@@ -258,13 +256,15 @@ const DeleteAdmin = async (req, res) => {
 };
 
 const UpdatePrisoner = async (req, res) => {
-  const { sentence_end_date, prisoner_status, visitor_1, visitor_2 } = req.body;
+  const { FirstName, LastName, Age, gender, Crime, Sentence } = req.body;
 
   const requiredFields = {
-    sentence_end_date,
-    prisoner_status,
-    visitor_1,
-    visitor_2,
+    FirstName,
+    LastName,
+    Age,
+    gender,
+    Crime,
+    Sentence,
   };
 
   return generic_update(

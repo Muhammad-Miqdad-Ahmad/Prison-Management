@@ -271,6 +271,58 @@ export const submitDeletePrisoner = async (data) => {
   }
 };
 
+export const submitUpdatePrisoner = async (data) => {
+  if (!data || typeof data !== "object" || data.length === 0 || !data["prisonerID"]) {
+    alert("Invalid data.");
+    return;
+  }
+
+  console.log(data);
+
+  const requiredFields = [
+    "FirstName",
+    "LastName",
+    "Age",
+    "gender",
+    "Crime",
+    "Sentence",
+  ];
+
+  const requestData = {};
+
+  for (const field in data) {
+    if(field === "prisonerID") continue;
+    if (!requiredFields.includes(field)) {
+      alert(`Invalid data. The field '${field}' cannot be updated.`);
+      return;
+    }
+  }
+
+  for (const field in data){
+    requestData[field] = data[field];
+  }
+
+  const root = databaseRoot("admin", "updatePrisoner");
+
+  try {
+    const response = await axios.put(root, requestData);
+    console.log("Response data:", response?.data?.message);
+    alert("Prisoner updated successfully!");
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      if (data?.message === "Prisoner not found")
+        alert(`No prisoner with this id`);
+      else {
+        alert(`Failed to update prisoner: ${data?.message || "Unknown error"}`);
+      }
+    } else {
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
+
+};
+
 export const HttpStatusCodes = Object.freeze({
   // 200 - Success
   OK: 200,

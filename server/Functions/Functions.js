@@ -1,5 +1,20 @@
 const { text } = require("express");
 
+function createField(params) {
+  switch (params) {
+    case "Age":
+      return "person.age"
+    case "FirstName":
+      return "person.first_name"
+    case "LastName":
+      return "person.last_name"
+    case "gender":
+      return "person.gender"
+    default:
+      return params
+  }
+}
+
 async function generic_delete(
   res,
   table,
@@ -69,9 +84,11 @@ async function generic_update(
   let query = `UPDATE ${table_name} SET `;
   check.map((field, index) => {
     if (index > 0) query += ", ";
-    query += `${field} = $${index + 1}`;
+    query += `${createField(field)} = $${index + 1}`;
   });
   query += ` WHERE ${where} = ${ID}`;
+
+  console.log(query);
 
   try {
     const result = await client.query(query, fields);
