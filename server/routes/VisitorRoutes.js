@@ -1,8 +1,8 @@
 const express = require('express')
 const GuardRouter = express.Router()
-const { SomeFunction } = require("../Controllers/VisitorController");
+const { GetVisitorData } = require("../Controllers/VisitorController");
 
-GuardRouter.get("/someFunction", SomeFunction);
+GuardRouter.get("/getData", GetVisitorData);
 
 
 module.exports = GuardRouter;
