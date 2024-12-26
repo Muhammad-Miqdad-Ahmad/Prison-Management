@@ -21,6 +21,8 @@ import RemovePrisoner from "../Tabs/RemovePrisoner";
 import UpdatePrisoner from "../Tabs/UpdatePrisoner";
 import RemoveGuard from "../Tabs/RemoveGuard";
 import UpdateGuard from "../Tabs/UpdateGuard";
+import AddPrison from "../Tabs/AddPrison";
+import RemovePrison from "../Tabs/RemovePrison";
 
 LogBox.ignoreLogs([
   "Non-serializable values were found in the navigation state",
@@ -138,8 +140,8 @@ const AdminDrawer = ({ navigation }) => {
       text: "Add",
       route: GenericTab,
       iconName: "plus",
-      component: [<AddPersonData />, <AddAdminData />],
-      componentText: ["Add Personal detail of the Admin", "Add Admin detail"],
+      component: [<AddPrison />],
+      componentText: [""],
       barColor: "blue",
       activeIconColor: "#FFFFFF",
       callBack: console.log,
@@ -148,22 +150,22 @@ const AdminDrawer = ({ navigation }) => {
       text: "Remove",
       route: GenericTab,
       iconName: "trash",
-      component: [<RemovePerson />],
+      component: [<RemovePrison />],
       componentText: [""],
       barColor: "red",
       activeIconColor: "#FFFFFF",
       callBack: console.log,
     },
-    {
-      text: "Update",
-      route: GenericTab,
-      iconName: "edit",
-      component: [<UpdateData />],
-      componentText: [""],
-      barColor: "yellow",
-      activeIconColor: "#000000",
-      callBack: console.log,
-    },
+    // {
+    //   text: "Update",
+    //   route: GenericTab,
+    //   iconName: "edit",
+    //   component: [<UpdateData />],
+    //   componentText: [""],
+    //   barColor: "yellow",
+    //   activeIconColor: "#000000",
+    //   callBack: console.log,
+    // },
   ];
 
   return (
@@ -198,19 +200,32 @@ const AdminDrawer = ({ navigation }) => {
       />
       {adminData?.accesslevel === undefined ? (
         <Drawer.Screen
-          name="Alter Admin Data"
-          component={AlterTabs}
-          initialParams={{
-            tabs: alterAdminData,
-          }}
-          options={{
-            title: "Alter Admin Data",
-            headerBackVisible: false,
-            headerBackTitleVisible: false,
-            headerTitleAlign: "center",
-          }}
+        name="Alter Admin Data"
+        component={AlterTabs}
+        initialParams={{
+          tabs: alterAdminData,
+        }}
+        options={{
+          title: "Alter Admin Data",
+          headerBackVisible: false,
+          headerBackTitleVisible: false,
+          headerTitleAlign: "center",
+        }}
         />
       ) : null}
+      <Drawer.Screen
+        name="Alter Prison data"
+        component={AlterTabs}
+        initialParams={{
+          tabs: alterPrisonData,
+        }}
+        options={{
+          title: "Alter Prison Data", //? the title that will be shown on the tab
+          headerBackVisible: false,
+          headerBackTitleVisible: false,
+          headerTitleAlign: "center",
+        }}
+      />
     </Drawer.Navigator>
   );
 };

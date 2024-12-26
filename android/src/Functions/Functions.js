@@ -443,7 +443,7 @@ export const submitUpdateGuard = async (data) => {
   }
 
   const root = databaseRoot("admin", "updateGuard");
-try {
+  try {
     const response = await axios.put(root, requestData);
     console.log("Response data:", response?.data?.message);
     alert("Guard updated successfully!");
@@ -458,8 +458,71 @@ try {
       alert("An unexpected error occurred. Please try again later.");
     }
   }
-
 };
+
+export const submitAddPrison = async (data) => {
+  if (!data || typeof data !== "object" || data.length === 0) {
+    alert("Invalid data.");
+    return;
+  }
+  const requiredFields = ["prisonName", "prisonLocation"];
+  for (const field of requiredFields) {
+    if (!data[field]) {
+      alert(
+        `Invalid data. The field '${field}' is required and cannot be empty.`
+      );
+      return;
+    }
+  }
+  const requestData = {
+    prisonName: data["prisonName"],
+    prisonLocation: data["prisonLocation"],
+  };
+  const root = databaseRoot("admin", "addPrison");
+  try {
+    const response = await axios.post(root, requestData);
+    console.log("Response data:", response?.data?.message);
+    alert("Prison added successfully!");
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      if (data?.message === "Duplicate entry violates unique constraint")
+        alert(`Already a prison with this name`);
+      else {
+        alert(`Failed to add prison: ${data?.message || "Unknown error"}`);
+      }
+    } else {
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
+};
+
+export const submitDeletePrison = async (data) => {
+  if (!data) {
+    alert("Invalid data.");
+    return;
+  }
+
+  const root = databaseRoot("admin", "deletePrison") + "?prisonID=" + data;
+  try {
+    const response = await axios.delete(root);
+    console.log("Response data:", response?.data?.message);
+    alert("Prison deleted successfully!");
+  }
+  catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      if (data?.message === "Prison not found") alert(`No prison with this id`);
+      else {
+        alert(`Failed to delete prison: ${data?.message || "Unknown error"}`);
+      }
+    }
+    else {
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
+};
+
 
 export const HttpStatusCodes = Object.freeze({
   // 200 - Success

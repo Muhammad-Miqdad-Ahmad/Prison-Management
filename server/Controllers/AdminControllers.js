@@ -232,6 +232,22 @@ const AddAdmin = async (req, res) => {
   generic_add(res, query, requiredFields, client, HttpStatusCodes);
 };
 
+const AddPrison = async (req, res) => {
+  const { prisonName, prisonLocation } = req.body;
+
+  if (!prisonName || !prisonLocation) {
+    return res.status(HttpStatusCodes.BAD_REQUEST).json({
+      message: "All fields (prisonName, prisonLocation) are required.",
+    });
+  }
+
+  const query = `INSERT INTO prisions (prision_name, prision_location)
+                    VALUES ($1, $2);`;
+
+  const requiredFields = [prisonName, prisonLocation];
+  generic_add(res, query, requiredFields, client, HttpStatusCodes);
+};
+
 const DeletePrisoner = async (req, res) => {
   console.log("in here");
   const ID = req.query.prisonerID;
@@ -271,6 +287,24 @@ const DeleteAdmin = async (req, res) => {
       .json({ message: "Admin ID is required." });
   }
   return generic_delete(res, "admins", "admin_id", ID, client, HttpStatusCodes);
+};
+
+const DeletePrison = async (req, res) => {
+  const ID = req.query.prisonID;
+  if (!ID) {
+    return res
+
+      .status(HttpStatusCodes.BAD_REQUEST)
+      .json({ message: "Prison ID is required." });
+  }
+  return generic_delete(
+    res,
+    "prisions",
+    "prision_id",
+    ID,
+    client,
+    HttpStatusCodes
+  );
 };
 
 const UpdatePrisoner = async (req, res) => {
@@ -402,18 +436,20 @@ const debounceSearch = async (req, res) => {
 };
 
 module.exports = {
-  GetAdminData,
   AdminLogin,
   AddPrisoner,
-  check,
-  buildQuery,
-  debounceSearch,
   AddAdmin,
   AddGuard,
+  AddPrison,
   DeletePrisoner,
   DeleteGuard,
   DeleteAdmin,
+  DeletePrison,
   UpdatePrisoner,
   UpdateGuard,
   UpdateAdmin,
+  GetAdminData,
+  check,
+  buildQuery,
+  debounceSearch,
 };
