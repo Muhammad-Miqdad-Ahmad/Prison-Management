@@ -2,16 +2,15 @@ import sys
 import cv2
 from pyzbar import pyzbar
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QLineEdit, QVBoxLayout, QWidget, QTextEdit, QStackedWidget
-from PyQt5.QtCore import QPropertyAnimation, Qt, QEasingCurve, QTimer
+from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QFont, QImage, QPixmap
-from PyQt5.QtWidgets import QGraphicsOpacityEffect
 
 class MainApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Prison Management System")
         self.setGeometry(100, 100, 800, 600)
-        
+
         # Initialize flag for check-in/check-out state
         self.is_checking_in = True
 
@@ -57,11 +56,11 @@ class MainApp(QMainWindow):
         self.username_input = QLineEdit()
         self.username_input.setPlaceholderText("Enter Username")
         self.username_input.setStyleSheet(self.input_style)
-        
+
         self.guard_login_button = QPushButton("Login as Guard")
         self.guard_login_button.setStyleSheet(self.button_style)
         self.guard_login_button.clicked.connect(self.show_guard_dashboard)
-        
+
         self.prisoner_login_button = QPushButton("Login as Prisoner")
         self.prisoner_login_button.setStyleSheet(self.button_style)
         self.prisoner_login_button.clicked.connect(self.show_prisoner_dashboard)
@@ -71,7 +70,7 @@ class MainApp(QMainWindow):
         layout.addWidget(self.guard_login_button, alignment=Qt.AlignCenter)
         layout.addWidget(self.prisoner_login_button, alignment=Qt.AlignCenter)
         layout.setAlignment(Qt.AlignCenter)
-        
+
         login_widget.setLayout(layout)
         self.stacked_widget.addWidget(login_widget)
 
@@ -99,7 +98,10 @@ class MainApp(QMainWindow):
         self.logout_button.setStyleSheet(self.button_style)
         self.logout_button.clicked.connect(self.close)
 
-        layout.addWidget(QLabel("Guard Dashboard", alignment=Qt.AlignCenter).setStyleSheet(self.label_style))
+        guard_label = QLabel("Guard Dashboard")
+        guard_label.setStyleSheet(self.label_style)
+
+        layout.addWidget(guard_label, alignment=Qt.AlignCenter)
         layout.addWidget(self.checkin_button)
         layout.addWidget(self.checkout_button)
         layout.addWidget(self.complaint_button)
@@ -116,6 +118,10 @@ class MainApp(QMainWindow):
 
         prisoner_label = QLabel("Prisoner Dashboard")
         prisoner_label.setStyleSheet(self.label_style)
+
+        self.sentence_display = QLabel()  # Display for the remaining sentence
+        self.sentence_display.setStyleSheet(self.label_style)
+        self.sentence_display.setWordWrap(True)
 
         self.remaining_sentence_button = QPushButton("Remaining Sentence")
         self.remaining_sentence_button.setStyleSheet(self.button_style)
@@ -138,6 +144,7 @@ class MainApp(QMainWindow):
         logout_button.clicked.connect(self.close)
 
         layout.addWidget(prisoner_label, alignment=Qt.AlignCenter)
+        layout.addWidget(self.sentence_display)  # Add this to the layout
         layout.addWidget(self.remaining_sentence_button)
         layout.addWidget(self.upcoming_visitation_button)
         layout.addWidget(self.complaint_button)
@@ -176,11 +183,11 @@ class MainApp(QMainWindow):
         self.stacked_widget.addWidget(complaint_widget)
 
     def init_qr_scanner_view(self):
-        self.qr_scanner_widget = QWidget()
+        qr_scanner_widget = QWidget()
         layout = QVBoxLayout()
 
-        self.qr_status_label = QLabel("Scanning for QR Code...")
-        self.qr_status_label.setStyleSheet(self.label_style)
+        qr_status_label = QLabel("Scanning for QR Code...")
+        qr_status_label.setStyleSheet(self.label_style)
 
         self.camera_feed = QLabel()
         self.camera_feed.setFixedSize(640, 480)
@@ -189,22 +196,21 @@ class MainApp(QMainWindow):
         close_camera_button.setStyleSheet(self.button_style)
         close_camera_button.clicked.connect(self.close_qr_scanner)
 
-        layout.addWidget(self.qr_status_label, alignment=Qt.AlignCenter)
+        layout.addWidget(qr_status_label, alignment=Qt.AlignCenter)
         layout.addWidget(self.camera_feed, alignment=Qt.AlignCenter)
         layout.addWidget(close_camera_button, alignment=Qt.AlignCenter)
 
-        self.qr_scanner_widget.setLayout(layout)
-        self.stacked_widget.addWidget(self.qr_scanner_widget)
+        qr_scanner_widget.setLayout(layout)
+        self.stacked_widget.addWidget(qr_scanner_widget)
+
     def show_remaining_sentence(self):
-        # Replace with actual logic to fetch and display the remaining sentence.
         remaining_sentence = "2 years, 5 months, 10 days"  # Example value
         self.sentence_display.setText(f"Your Remaining Sentence: {remaining_sentence}")
         print(f"Remaining Sentence: {remaining_sentence}")
 
     def show_upcoming_visitations(self):
-        # Replace with actual logic to fetch and display visitation details.
         visitation_details = "Next visitation: December 15, 2024, at 2:00 PM"  # Example value
-        self.visitation_display.setText(f"Upcoming Visitations: {visitation_details}")
+        self.sentence_display.setText(f"Upcoming Visitations: {visitation_details}")
         print(f"Upcoming Visitations: {visitation_details}")
 
     def set_check_in_mode(self):
@@ -228,49 +234,20 @@ class MainApp(QMainWindow):
         self.stacked_widget.setCurrentIndex(3)
 
     def show_qr_scanner_view(self):
-        self.stacked_widget.setCurrentWidget(self.qr_scanner_widget)
-        self.cap = cv2.VideoCapture(0)
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update_frame)
-        self.timer.start(20)
+        self.stacked_widget.setCurrentWidget(self.stacked_widget.widget(4))
 
     def close_qr_scanner(self):
-        self.timer.stop()
-        self.cap.release()
-        self.stacked_widget.setCurrentIndex(1)  # Return to guard dashboard
-
-    def update_frame(self):
-        ret, frame = self.cap.read()
-        if not ret:
-            return
-
-        barcodes = pyzbar.decode(frame)
-        for barcode in barcodes:
-            barcode_data = barcode.data.decode("utf-8")
-            if self.is_checking_in:
-                self.qr_status_label.setText(f"Checked In: {barcode_data}")
-            else:
-                self.qr_status_label.setText(f"Checked Out: {barcode_data}")
-            self.timer.stop()
-            self.cap.release()
-            return
-
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        height, width, channel = frame.shape
-        step = channel * width
-        q_img = QImage(frame.data, width, height, step, QImage.Format_RGB888)
-        self.camera_feed.setPixmap(QPixmap.fromImage(q_img))
+        self.stacked_widget.setCurrentIndex(1)
 
     def submit_complaint(self):
         complaint_text = self.complaint_text.toPlainText()
-        if complaint_text:
-            print(f"Complaint submitted: {complaint_text}")
-            self.complaint_text.clear()
-        else:
-            print("Complaint field is empty.")
+        print(f"Complaint Submitted: {complaint_text}")
+        self.complaint_text.clear()
+        self.show_guard_dashboard()
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = MainApp()
-    window.show()
+    main_window = MainApp()
+    main_window.show()
     sys.exit(app.exec_())

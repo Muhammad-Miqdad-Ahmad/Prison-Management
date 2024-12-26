@@ -1,12 +1,10 @@
 import sys
 import cv2
 from pyzbar import pyzbar
-from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QPushButton, QLabel, QLineEdit,
-    QVBoxLayout, QWidget, QTextEdit, QStackedWidget
-)
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QLineEdit, QVBoxLayout, QWidget, QTextEdit, QStackedWidget, QMessageBox, QTableWidget, QTableWidgetItem
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap
+from backend import PrisonManagementBackend
 
 class MainApp(QMainWindow):
     def __init__(self):
@@ -14,22 +12,25 @@ class MainApp(QMainWindow):
         self.setWindowTitle("Prison Management System")
         self.setGeometry(100, 100, 800, 600)
 
-        # Flag for check-in/check-out
+        # Initialize flag for check-in/check-out state
         self.is_checking_in = True
 
-        # Central stacked widget
         self.stacked_widget = QStackedWidget()
         self.setCentralWidget(self.stacked_widget)
 
-        # Apply styles
         self.apply_styles()
-
-        # Initialize all views
         self.init_login_view()
         self.init_guard_dashboard()
         self.init_prisoner_dashboard()
         self.init_complaint_view()
         self.init_qr_scanner_view()
+        self.init_admin_dashboard()
+        self.init_emergency_alert_view()
+        self.init_check_records_view()
+        self.init_check_visitation_view()
+
+        # Initialize backend
+        self.backend = PrisonManagementBackend(dbname="Prison", user="postgres", password="qwas@M1604", host="localhost", port="5432")
 
     def apply_styles(self):
         self.setStyleSheet("""
@@ -97,6 +98,14 @@ class MainApp(QMainWindow):
         self.complaint_button.setStyleSheet(self.button_style)
         self.complaint_button.clicked.connect(self.show_complaint_view)
 
+        self.check_records_button = QPushButton("Check Records")
+        self.check_records_button.setStyleSheet(self.button_style)
+        self.check_records_button.clicked.connect(self.show_check_records_view)
+
+        self.check_visitation_button = QPushButton("Check Visitation")
+        self.check_visitation_button.setStyleSheet(self.button_style)
+        self.check_visitation_button.clicked.connect(self.show_check_visitation_view)
+
         self.back_button = QPushButton("Back")
         self.back_button.setStyleSheet(self.button_style)
         self.back_button.clicked.connect(self.show_login_view)
@@ -112,6 +121,8 @@ class MainApp(QMainWindow):
         layout.addWidget(self.checkin_button)
         layout.addWidget(self.checkout_button)
         layout.addWidget(self.complaint_button)
+        layout.addWidget(self.check_records_button)
+        layout.addWidget(self.check_visitation_button)
         layout.addWidget(self.back_button)
         layout.addWidget(self.logout_button)
         layout.setAlignment(Qt.AlignCenter)
@@ -126,11 +137,9 @@ class MainApp(QMainWindow):
         prisoner_label = QLabel("Prisoner Dashboard")
         prisoner_label.setStyleSheet(self.label_style)
 
-        self.sentence_display = QLabel("Your Remaining Sentence: Not Available")
+        self.sentence_display = QLabel()  # Display for the remaining sentence
         self.sentence_display.setStyleSheet(self.label_style)
-
-        self.visitation_display = QLabel("Upcoming Visitations: None")
-        self.visitation_display.setStyleSheet(self.label_style)
+        self.sentence_display.setWordWrap(True)
 
         self.remaining_sentence_button = QPushButton("Remaining Sentence")
         self.remaining_sentence_button.setStyleSheet(self.button_style)
@@ -139,6 +148,10 @@ class MainApp(QMainWindow):
         self.upcoming_visitation_button = QPushButton("Upcoming Visitations")
         self.upcoming_visitation_button.setStyleSheet(self.button_style)
         self.upcoming_visitation_button.clicked.connect(self.show_upcoming_visitations)
+
+        self.complaint_button = QPushButton("Submit Complaint")
+        self.complaint_button.setStyleSheet(self.button_style)
+        self.complaint_button.clicked.connect(self.show_complaint_view)
 
         back_button = QPushButton("Back")
         back_button.setStyleSheet(self.button_style)
@@ -149,10 +162,10 @@ class MainApp(QMainWindow):
         logout_button.clicked.connect(self.close)
 
         layout.addWidget(prisoner_label, alignment=Qt.AlignCenter)
+        layout.addWidget(self.sentence_display)  # Add this to the layout
         layout.addWidget(self.remaining_sentence_button)
-        layout.addWidget(self.sentence_display)
         layout.addWidget(self.upcoming_visitation_button)
-        layout.addWidget(self.visitation_display)
+        layout.addWidget(self.complaint_button)
         layout.addWidget(back_button)
         layout.addWidget(logout_button)
         layout.setAlignment(Qt.AlignCenter)
@@ -188,11 +201,11 @@ class MainApp(QMainWindow):
         self.stacked_widget.addWidget(complaint_widget)
 
     def init_qr_scanner_view(self):
-        self.qr_scanner_widget = QWidget()
+        qr_scanner_widget = QWidget()
         layout = QVBoxLayout()
 
-        self.qr_status_label = QLabel("Scanning for QR Code...")
-        self.qr_status_label.setStyleSheet(self.label_style)
+        qr_status_label = QLabel("Scanning for QR Code...")
+        qr_status_label.setStyleSheet(self.label_style)
 
         self.camera_feed = QLabel()
         self.camera_feed.setFixedSize(640, 480)
@@ -201,12 +214,157 @@ class MainApp(QMainWindow):
         close_camera_button.setStyleSheet(self.button_style)
         close_camera_button.clicked.connect(self.close_qr_scanner)
 
-        layout.addWidget(self.qr_status_label, alignment=Qt.AlignCenter)
+        layout.addWidget(qr_status_label, alignment=Qt.AlignCenter)
         layout.addWidget(self.camera_feed, alignment=Qt.AlignCenter)
         layout.addWidget(close_camera_button, alignment=Qt.AlignCenter)
 
-        self.qr_scanner_widget.setLayout(layout)
-        self.stacked_widget.addWidget(self.qr_scanner_widget)
+        qr_scanner_widget.setLayout(layout)
+        self.stacked_widget.addWidget(qr_scanner_widget)
+
+        # Initialize camera
+        self.cap = cv2.VideoCapture(0)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_frame)
+
+    def init_admin_dashboard(self):
+        admin_widget = QWidget()
+        layout = QVBoxLayout()
+
+        admin_label = QLabel("Admin Dashboard")
+        admin_label.setStyleSheet(self.label_style)
+
+        self.manage_users_button = QPushButton("Manage Users")
+        self.manage_users_button.setStyleSheet(self.button_style)
+        self.manage_users_button.clicked.connect(self.show_manage_users_view)
+
+        self.view_reports_button = QPushButton("View Reports")
+        self.view_reports_button.setStyleSheet(self.button_style)
+        self.view_reports_button.clicked.connect(self.show_view_reports_view)
+
+        back_button = QPushButton("Back")
+        back_button.setStyleSheet(self.button_style)
+        back_button.clicked.connect(self.show_login_view)
+
+        logout_button = QPushButton("Logout")
+        logout_button.setStyleSheet(self.button_style)
+        logout_button.clicked.connect(self.close)
+
+        layout.addWidget(admin_label, alignment=Qt.AlignCenter)
+        layout.addWidget(self.manage_users_button)
+        layout.addWidget(self.view_reports_button)
+        layout.addWidget(back_button)
+        layout.addWidget(logout_button)
+        layout.setAlignment(Qt.AlignCenter)
+
+        admin_widget.setLayout(layout)
+        self.stacked_widget.addWidget(admin_widget)
+
+    def init_emergency_alert_view(self):
+        emergency_widget = QWidget()
+        layout = QVBoxLayout()
+
+        emergency_label = QLabel("Emergency Alert")
+        emergency_label.setStyleSheet(self.label_style)
+
+        self.alert_message = QLabel("Emergency! Please follow the instructions.")
+        self.alert_message.setStyleSheet(self.label_style)
+        self.alert_message.setWordWrap(True)
+
+        back_button = QPushButton("Back")
+        back_button.setStyleSheet(self.button_style)
+        back_button.clicked.connect(self.show_guard_dashboard)
+
+        layout.addWidget(emergency_label, alignment=Qt.AlignCenter)
+        layout.addWidget(self.alert_message, alignment=Qt.AlignCenter)
+        layout.addWidget(back_button, alignment=Qt.AlignCenter)
+        layout.setAlignment(Qt.AlignCenter)
+
+        emergency_widget.setLayout(layout)
+        self.stacked_widget.addWidget(emergency_widget)
+
+    def init_check_records_view(self):
+        check_records_widget = QWidget()
+        layout = QVBoxLayout()
+
+        records_label = QLabel("Check Records")
+        records_label.setStyleSheet(self.label_style)
+
+        self.records_table = QTableWidget()
+        self.records_table.setColumnCount(5)  # Adjust the number of columns as needed
+        self.records_table.setHorizontalHeaderLabels(["ID", "Name", "DOB", "Nationality", "Status"])
+
+        back_button = QPushButton("Back")
+        back_button.setStyleSheet(self.button_style)
+        back_button.clicked.connect(self.show_guard_dashboard)
+
+        layout.addWidget(records_label, alignment=Qt.AlignCenter)
+        layout.addWidget(self.records_table)
+        layout.addWidget(back_button)
+        layout.setAlignment(Qt.AlignTop)
+
+        check_records_widget.setLayout(layout)
+        self.stacked_widget.addWidget(check_records_widget)
+
+    def init_check_visitation_view(self):
+        check_visitation_widget = QWidget()
+        layout = QVBoxLayout()
+
+        visitation_label = QLabel("Check Visitation")
+        visitation_label.setStyleSheet(self.label_style)
+
+        self.visitation_table = QTableWidget()
+        self.visitation_table.setColumnCount(5)  # Adjust the number of columns as needed
+        self.visitation_table.setHorizontalHeaderLabels(["ID", "Prisoner ID", "Visitor ID", "Date", "Time"])
+
+        back_button = QPushButton("Back")
+        back_button.setStyleSheet(self.button_style)
+        back_button.clicked.connect(self.show_guard_dashboard)
+
+        layout.addWidget(visitation_label, alignment=Qt.AlignCenter)
+        layout.addWidget(self.visitation_table)
+        layout.addWidget(back_button)
+        layout.setAlignment(Qt.AlignTop)
+
+        check_visitation_widget.setLayout(layout)
+        self.stacked_widget.addWidget(check_visitation_widget)
+
+    def show_check_records_view(self):
+        self.stacked_widget.setCurrentWidget(self.stacked_widget.widget(7))
+        self.load_records()
+
+    def show_check_visitation_view(self):
+        self.stacked_widget.setCurrentWidget(self.stacked_widget.widget(8))
+        self.load_visitation()
+
+    def load_records(self):
+        records = self.backend.get_prisoners()
+        self.records_table.setRowCount(len(records))
+        for row_idx, record in enumerate(records):
+            self.records_table.setItem(row_idx, 0, QTableWidgetItem(str(record['prisoner_id'])))
+            self.records_table.setItem(row_idx, 1, QTableWidgetItem(f"{record['person']['first_name']} {record['person']['last_name']}"))
+            self.records_table.setItem(row_idx, 2, QTableWidgetItem(record['person']['dob']))
+            self.records_table.setItem(row_idx, 3, QTableWidgetItem(record['person']['nationality']))
+            self.records_table.setItem(row_idx, 4, QTableWidgetItem(record['prisoner_status']))
+
+    def load_visitation(self):
+        visitations = self.backend.get_visiting_reservations()
+        self.visitation_table.setRowCount(len(visitations))
+        for row_idx, visitation in enumerate(visitations):
+            self.visitation_table.setItem(row_idx, 0, QTableWidgetItem(str(visitation['reservation_id'])))
+            self.visitation_table.setItem(row_idx, 1, QTableWidgetItem(str(visitation['prisoner_id'])))
+            self.visitation_table.setItem(row_idx, 2, QTableWidgetItem(str(visitation['visitor_id'])))
+            self.visitation_table.setItem(row_idx, 3, QTableWidgetItem(visitation['visit_date']))
+            self.visitation_table.setItem(row_idx, 4, QTableWidgetItem(visitation['reservation_time']))
+
+    def show_remaining_sentence(self):
+        remaining_sentence = "2 years, 5 months, 10 days"  # Example value
+        self.sentence_display.setText(f"Your Remaining Sentence: {remaining_sentence}")
+        print(f"Remaining Sentence: {remaining_sentence}")
+
+    def show_upcoming_visitations(self):
+        visitation_details = "Next visitation: December 15, 2024, at 2:00 PM"  # Example value
+        self.sentence_display.setText(f"Upcoming Visitations: {visitation_details}")
+        print(f"Upcoming Visitations: {visitation_details}")
 
     def set_check_in_mode(self):
         self.is_checking_in = True
@@ -229,59 +387,60 @@ class MainApp(QMainWindow):
         self.stacked_widget.setCurrentIndex(3)
 
     def show_qr_scanner_view(self):
-        self.stacked_widget.setCurrentWidget(self.qr_scanner_widget)
-        try:
-            self.cap = cv2.VideoCapture(0)
-            if not self.cap.isOpened():
-                self.qr_status_label.setText("Error: Camera not found.")
-                return
-            self.timer = QTimer(self)
-            self.timer.timeout.connect(self.update_frame)
-            self.timer.start(20)
-        except Exception as e:
-            self.qr_status_label.setText(f"Camera Error: {str(e)}")
+        self.stacked_widget.setCurrentWidget(self.stacked_widget.widget(4))
+        self.cap.open(0)
+        self.timer.start(20)
+
+    def show_admin_dashboard(self):
+        self.stacked_widget.setCurrentIndex(5)
+
+    def show_emergency_alert_view(self):
+        self.stacked_widget.setCurrentIndex(6)
 
     def close_qr_scanner(self):
-        if hasattr(self, 'timer') and self.timer.isActive():
-            self.timer.stop()
-        if hasattr(self, 'cap') and self.cap.isOpened():
-            self.cap.release()
-        self.camera_feed.clear()
+        self.timer.stop()
+        self.cap.release()
         self.stacked_widget.setCurrentIndex(1)
+
+    def submit_complaint(self):
+        complaint_text = self.complaint_text.toPlainText()
+        print(f"Complaint Submitted: {complaint_text}")
+        self.complaint_text.clear()
+        self.show_guard_dashboard()
+
+    def show_manage_users_view(self):
+        # Placeholder for manage users view
+        print("Manage Users View")
+
+    def show_view_reports_view(self):
+        # Placeholder for view reports view
+        print("View Reports View")
 
     def update_frame(self):
         ret, frame = self.cap.read()
-        if not ret:
-            self.qr_status_label.setText("Camera error: Unable to capture frame.")
-            return
-        decoded_objects = pyzbar.decode(frame)
-        if decoded_objects:
-            for obj in decoded_objects:
-                data = obj.data.decode('utf-8')
-                self.qr_status_label.setText(f"{'Checked In' if self.is_checking_in else 'Checked Out'}: {data}")
+        if ret:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            qr_codes = pyzbar.decode(frame)
+            for qr_code in qr_codes:
+                x, y, w, h = qr_code.rect
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                qr_data = qr_code.data.decode('utf-8')
+                print(f"QR Code Data: {qr_data}")
                 self.timer.stop()
-                QTimer.singleShot(2000, self.close_qr_scanner)
+                self.cap.release()
+                self.show_message(qr_data)
+                self.show_guard_dashboard()
                 return
 
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        image = QImage(frame, frame.shape[1], frame.shape[0], QImage.Format_RGB888)
-        self.camera_feed.setPixmap(QPixmap.fromImage(image))
+            image = QImage(frame, frame.shape[1], frame.shape[0], QImage.Format_RGB888)
+            self.camera_feed.setPixmap(QPixmap.fromImage(image))
 
-    def submit_complaint(self):
-        complaint = self.complaint_text.toPlainText()
-        if complaint.strip():
-            self.qr_status_label.setText("Complaint submitted successfully!")
-        else:
-            self.qr_status_label.setText("Error: Complaint cannot be empty!")
-
-    def show_remaining_sentence(self):
-        self.sentence_display.setText("Your Remaining Sentence: 2 years, 5 months.")
-
-    def show_upcoming_visitations(self):
-        self.visitation_display.setText("Upcoming Visitations: Dec 15, 2024 - 2 PM")
+    def show_message(self, qr_data):
+        message = "Check-In" if self.is_checking_in else "Check-Out"
+        QMessageBox.information(self, "QR Code Scanned", f"{message} successful!\nQR Code Data: {qr_data}")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = MainApp()
-    window.show()
+    main_window = MainApp()
+    main_window.show()
     sys.exit(app.exec_())
