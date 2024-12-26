@@ -21,10 +21,6 @@ const AddPrisonerData = ({ data, setData, setscan }) => {
   const [dateOfCapture, setdateOfCapture] = useState(undefined);
   const [dateOfRelease, setdateOfRelease] = useState(undefined);
 
-  const getScanedID = (someID) => {
-    setData({ ...data, prisonerID: someID });
-  };
-
   useEffect(() => {
     if (data === undefined || data === null || typeof data !== 'object') {
       console.log("I am changing data because data was: ", data);

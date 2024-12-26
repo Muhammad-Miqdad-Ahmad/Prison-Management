@@ -272,7 +272,12 @@ export const submitDeletePrisoner = async (data) => {
 };
 
 export const submitUpdatePrisoner = async (data) => {
-  if (!data || typeof data !== "object" || data.length === 0 || !data["prisonerID"]) {
+  if (
+    !data ||
+    typeof data !== "object" ||
+    data.length === 0 ||
+    !data["prisonerID"]
+  ) {
     alert("Invalid data.");
     return;
   }
@@ -291,14 +296,14 @@ export const submitUpdatePrisoner = async (data) => {
   const requestData = {};
 
   for (const field in data) {
-    if(field === "prisonerID") continue;
+    if (field === "prisonerID") continue;
     if (!requiredFields.includes(field)) {
       alert(`Invalid data. The field '${field}' cannot be updated.`);
       return;
     }
   }
 
-  for (const field in data){
+  for (const field in data) {
     requestData[field] = data[field];
   }
 
@@ -320,7 +325,69 @@ export const submitUpdatePrisoner = async (data) => {
       alert("An unexpected error occurred. Please try again later.");
     }
   }
+};
 
+export const submitAddGuard = async (data) => {
+  if (!data || typeof data !== "object") {
+    alert("Invalid data.");
+    return;
+  }
+
+  const requiredFields = [
+    "Age",
+    "FirstName",
+    "LastName",
+    "dateOfBirth",
+    "dateOfJoining",
+    "gender",
+    "prisonID",
+    "guardID",
+    "qrCode",
+    "nationality",
+    "guardShift",
+  ];
+
+  for (const field of requiredFields) {
+    if (!data[field]) {
+      alert(
+        `Invalid data. The field '${field}' is required and cannot be empty.`
+      );
+      return;
+    }
+  }
+
+  const requestData = {
+    Age: data["Age"],
+    FirstName: data["FirstName"],
+    LastName: data["LastName"],
+    dateOfBirth: data["dateOfBirth"],
+    joiningDate: data["dateOfJoining"],
+    gender: data["gender"],
+    prisonID: data["prisonID"],
+    guardID: data["guardID"],
+    qrCode: data["qrCode"],
+    nationality: data["nationality"],
+    guardShift: data["guardShift"],
+  };
+
+  const root = databaseRoot("admin", "addGuard");
+
+  try {
+    const response = await axios.post(root, requestData);
+    console.log("Response data:", response?.data?.message);
+    alert("Guard added successfully!");
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      if (data?.message === "Duplicate entry violates unique constraint")
+        alert(`Already a guard with this id`);
+      else {
+        alert(`Failed to add guard: ${data?.message || "Unknown error"}`);
+      }
+    } else {
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
 };
 
 export const HttpStatusCodes = Object.freeze({

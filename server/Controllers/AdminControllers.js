@@ -153,14 +153,14 @@ const AddGuard = async (req, res) => {
   const values = ({
     guardID,
     prisonID,
-    firstName,
-    lastName,
+    FirstName,
+    LastName,
     dateOfBirth,
-    age,
+    Age,
     nationality,
     gender,
     joiningDate,
-    shift,
+    guardShift,
     qrCode,
   } = req.body);
 
@@ -193,7 +193,25 @@ const AddGuard = async (req, res) => {
     );
   `;
 
-  return generic_add(res, query, requiredFields, client, HttpStatusCodes);
+  return generic_add(
+    res,
+    query,
+    [
+      guardID,
+      prisonID,
+      FirstName,
+      LastName,
+      dateOfBirth,
+      Age,
+      nationality,
+      gender,
+      joiningDate,
+      guardShift,
+      qrCode,
+    ],
+    client,
+    HttpStatusCodes
+  );
 };
 
 const AddAdmin = async (req, res) => {
