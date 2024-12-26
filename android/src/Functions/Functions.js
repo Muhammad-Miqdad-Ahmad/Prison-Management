@@ -249,12 +249,13 @@ export const submitDeletePrisoner = async (data) => {
     prisonerID: data,
   };
 
-  const root = databaseRoot("admin", "deletePrisoner");
+  console.log(requestData);
 
+  const root = databaseRoot("admin", "deletePrisoner") + "?prisonerID=" + data;
   console.log(root);
 
   try {
-    const response = await axios.post(root, requestData);
+    const response = await axios.delete(root);
     console.log("Response data:", response?.data?.message);
   } catch (error) {
     if (error.response) {
