@@ -1,24 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios"; // Correct import of axios
 
 const CNICPage = () => {
-  const [cnic, setCnic] = useState('');
-  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const [cnic, setCnic] = useState("");
+  const [error, setError] = useState("");
 
   // Function to validate CNIC
   const validateCnic = (value) => {
-    const cnicRegex = /^\d{5}-\d{7}-\d$/;
-    return cnicRegex.test(value);
+    // const cnicRegex = /^\d{5}-\d{7}-\d$/;
+    // return cnicRegex.test(value);
+    return true; // Temporary return value
   };
 
   // Handle Form Submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateCnic(cnic)) {
-      setError('');
-      alert(`CNIC Submitted: ${cnic}`);
-      // Perform next steps (e.g., API call or navigation)
+      setError("");
+      const isPrisoner = await checkPrisoner();
+      if (isPrisoner) {
+        alert(`CNIC Submitted: ${cnic}`);
+      } else {
+        setError("No prisoner found with the provided CNIC.");
+      }
     } else {
-      setError('Please enter a valid CNIC (e.g., 12345-1234567-1)');
+      setError("Please enter a valid CNIC (e.g., 12345-1234567-1)");
+    }
+  };
+
+  const checkPrisoner = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:9000/visitor/getData?visitorId=${cnic}`
+      );
+      console.log(response.data);
+      if (response.status === 200) {
+        const visitorData = response.data;
+        navigate("/welcome", { state: { visitorData, cnic } });
+      }
+    } catch (error) {
+      console.error(error);
+      setError("An error occurred while checking the CNIC. Please try again.");
+      return false;
     }
   };
 

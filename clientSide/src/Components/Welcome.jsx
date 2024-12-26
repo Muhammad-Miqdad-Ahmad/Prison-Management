@@ -1,22 +1,27 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FaUserFriends, FaCalendarAlt, FaInfoCircle } from 'react-icons/fa';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const WelcomePage = () => {
+  const location = useLocation();
+  const visitorData = location.state?.visitorData;
+  const cnic = location.state?.cnic;
+  const navigate = useNavigate();
   // Define actions for each feature
   const handleViewPrisonerDetails = () => {
     alert('Navigating to View Prisoner Details...');
-    // Perform specific action or navigation here
+    navigate('/view-prisoner-details', { state: { visitorData } });
   };
 
   const handleBookAppointment = () => {
     alert('Navigating to Book Appointment...');
-    // Perform specific action or navigation here
+    navigate('/book-appointment', { state: { cnic } });
   };
 
   const handleLearnMore = () => {
     alert('Displaying More Information...');
-    // Perform specific action or navigation here
+    navigate('/learn-more');
   };
 
   return (
