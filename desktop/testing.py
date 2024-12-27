@@ -436,7 +436,7 @@ class MainApp(QMainWindow):
             self.prisoner_table.setColumnCount(5)
             self.prisoner_table.setHorizontalHeaderLabels(["ID", "Name", "Age", "Crime", "Sentence"])
             for row_idx, prisoner in enumerate(prisoners):
-                self.prisoner_table.setItem(row_idx, 0, QTableWidgetItem(str(prisoner['id'])))
+                self.prisoner_table.setItem(row_idx, 0, QTableWidgetItem(str(prisoner['prisoner_id'])))
                 self.prisoner_table.setItem(row_idx, 1, QTableWidgetItem(prisoner['name']))
                 self.prisoner_table.setItem(row_idx, 2, QTableWidgetItem(str(prisoner['age'])))
                 self.prisoner_table.setItem(row_idx, 3, QTableWidgetItem(prisoner['crime']))
@@ -460,6 +460,15 @@ class MainApp(QMainWindow):
                 self.visitation_table.setItem(row_idx, 2, QTableWidgetItem(str(visitation.get('day_of_week', ''))))
                 self.visitation_table.setItem(row_idx, 3, QTableWidgetItem(str(visitation.get('start_time', ''))))
                 self.visitation_table.setItem(row_idx, 4, QTableWidgetItem(str(visitation.get('end_time', ''))))
+            back_button = QPushButton("Back")
+            back_button.setStyleSheet(self.button_style)
+            back_button.clicked.connect(self.show_guard_dashboard) 
+
+            layout = QVBoxLayout()
+            layout.addWidget(self.visitation_table)
+            layout.addWidget(back_button, alignment=Qt.AlignCenter) 
+            visitation_widget = QWidget()
+            visitation_widget.setLayout(layout)          
             self.stacked_widget.addWidget(self.visitation_table)
             self.stacked_widget.setCurrentWidget(self.visitation_table)
         except Exception as e:
@@ -521,13 +530,14 @@ class MainApp(QMainWindow):
             self.prisoner_table.setColumnCount(5)
             self.prisoner_table.setHorizontalHeaderLabels(["ID", "Name", "Age", "Crime", "Sentence"])
             for row_idx, prisoner in enumerate(prisoners):
-                self.prisoner_table.setItem(row_idx, 0, QTableWidgetItem(str(prisoner['id'])))
-                self.prisoner_table.setItem(row_idx, 1, QTableWidgetItem(prisoner['name']))
-                self.prisoner_table.setItem(row_idx, 2, QTableWidgetItem(str(prisoner['age'])))
+                self.prisoner_table.setItem(row_idx, 0, QTableWidgetItem(str(prisoner['prisoner_id'])))
+                full_name = f"{prisoner['person']['first_name']} {prisoner['person']['last_name']}"
+                self.prisoner_table.setItem(row_idx, 1, QTableWidgetItem(full_name))
+                self.prisoner_table.setItem(row_idx, 2, QTableWidgetItem(str(prisoner['person']['age'])))
                 self.prisoner_table.setItem(row_idx, 3, QTableWidgetItem(prisoner['crime']))
                 self.prisoner_table.setItem(row_idx, 4, QTableWidgetItem(prisoner['sentence']))
-            self.stacked_widget.addWidget(self.prisoner_table)
-            self.stacked_widget.setCurrentWidget(self.prisoner_table)
+                self.stacked_widget.addWidget(self.prisoner_table)
+                self.stacked_widget.setCurrentWidget(self.prisoner_table)
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to load prisoner records: {e}")
 

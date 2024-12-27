@@ -15,7 +15,10 @@ class PrisonManagementBackend:
 
 
         self.connection.autocommit = True
-
+    def get_prisoner_records(self):
+        with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM Prisoner")
+            return cursor.fetchall()
     def get_prisoner_records(self):
         with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute("SELECT * FROM Prisoner")
