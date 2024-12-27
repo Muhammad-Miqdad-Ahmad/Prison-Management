@@ -31,6 +31,16 @@ class PrisonManagementBackend:
                     'gender': person[5].strip('"')
                 }
             return prisoners
+    def get_upcoming_visitations(self, prisoner_id):
+        with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("""
+                SELECT vs.slot_id, vr.prisoner_id, vr.reservation_time, vr.visitor_id, vr.visit_date
+                FROM visitingReservations vr
+                JOIN visitingSlots vs ON vr.slot_id = vs.slot_id
+                WHERE vr.prisoner_id = %s AND vr.visit_date >= CURRENT_DATE
+                ORDER BY vr.visit_date
+            """, (prisoner_id,))
+            return cursor.fetchall()
 
     def get_visitation_details(self):
         with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:
