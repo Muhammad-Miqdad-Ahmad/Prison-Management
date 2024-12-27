@@ -21,7 +21,9 @@ const BookAppointment = () => {
         const prisonersResponse = await axios.get(`http://localhost:9000/visitor/getPrisonerData?visitorId=${visitorId}`);
         const slotsResponse = await axios.get('http://localhost:9000/visitor/visitingSlots');
         const appointmentsResponse = await axios.get(`http://localhost:9000/visitor/appointments?visitorId=${visitorId}`);
-
+        console.log('Prisoners:', prisonersResponse.data);
+        console.log('Visiting Slots:', slotsResponse.data);
+        console.log('Appointments:', appointmentsResponse.data);
         // Parse the person string for prisoners
         const parsedPrisoners = prisonersResponse.data.map(prisoner => {
           const personString = prisoner.person.replace('(', '').replace(')', '');
@@ -74,6 +76,7 @@ const BookAppointment = () => {
     }
 
     try {
+      console.log('Booking appointment...', visitorId);
       const response = await axios.post('http://localhost:9000/visitor/bookAppointment', {
         prisoner_id: selectedPrisoner,
         slot_id: selectedSlot,

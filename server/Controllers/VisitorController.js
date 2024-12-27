@@ -59,12 +59,28 @@ const GetPrisonerData = async (req, res) => {
 
 const VisitingSlots = async (req, res) => {
   try {
-    const result = await client.query("SELECT * FROM visitingSlots");
+    const today = new Date();
+    const nextWeek = new Date();
+    nextWeek.setDate(today.getDate() + 7);
+
+    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const currentDayIndex = daysOfWeek.indexOf(daysOfWeek[today.getDay()]);
+    const nextSevenDays = daysOfWeek.slice(currentDayIndex).concat(daysOfWeek.slice(0, currentDayIndex));
+
+    const result = await client.query(
+      `SELECT vs.*, vd.day_of_week, vd.start_time, vd.end_time
+       FROM visitingSlots vs
+       JOIN visitingDetails vd ON vs.visiting_id = vd.visiting_id
+       WHERE vd.day_of_week = ANY(\$1)`,
+      [nextSevenDays]
+    );
     res.json(result.rows);
   } catch (error) {
-    console.error("Error fetching visiting slots:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error('Error fetching visiting slots:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
+
+
 };
 
 const BookAppointment = async (req, res) => {
