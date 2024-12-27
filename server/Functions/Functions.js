@@ -38,6 +38,10 @@ async function generic_delete(
     }
 
     // Return success response with the deleted record
+    const resultlog = await client.query(
+      `INSERT INTO logs (log, time) VALUES ($1, $2) RETURNING *`,
+      [`Deleted ${table} where ${attribute} = ${value}`, new Date()]
+    );
     return res.status(HttpStatusCodes.OK).json({
       message: "Deleted successfully.",
       data: result,

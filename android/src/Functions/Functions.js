@@ -64,27 +64,32 @@ export const onBackPress = () => {
 };
 
 export const postData = async (data, router, route) => {
-  const body = {};
-
-  body["email"] = data.email;
-  body["password"] = data.password;
+  const body = {
+    email: data.email,
+    password: data.password,
+  };
 
   const root = databaseRoot(router, route);
 
-  const result = await fetch(root, {
-    method: "POST",
-    headers: {
-      "CONTENT-TYPE": "application/json",
-    },
-    body: JSON.stringify(body),
-  })
-    .then((response) => {
-      return response;
-    })
-    .catch((error) => {
-      return error;
-    });
-  return result;
+  try {
+    const response = await axios.post(root, body);
+    console.log("Response data:", response?.data?.message);
+    return response;
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      console.log(data);
+      console.log(status);
+      if (data?.message === "Referenced table not found in the database")
+        alert(`No admin with this email`);
+      else {
+        alert(`Failed to login admin: ${data?.message || "Unknown error"}`);
+      }
+    } else {
+      console.log(error);
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
 };
 
 export const searchDebounce = async (tableName, search) => {

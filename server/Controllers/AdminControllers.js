@@ -59,36 +59,30 @@ const AdminLogin = async (req, res) => {
       .json({ message: "Email and password are required", data: "" });
   }
 
-  const query = "SELECT * FROM chillarAdmins WHERE adminEmail = ?";
+  const query = "SELECT * FROM admins WHERE admin_email = $1";
   try {
-    // Execute the SQL query
-    client.query(query, [email], (err, results) => {
-      if (err) {
-        console.error(err);
-        return res.status(HttpStatusCodes.NOT_FOUND).json({
-          message: "AHHHHH fuck 😒\nHere we go again 🤦‍♂️",
-          data: err,
-        });
-      } else if (!results || results.length === 0) {
-        return res.status(HttpStatusCodes.NOT_FOUND).json({
-          message: "There Is no Admin with these credentials 🤮",
-          data: results,
-        });
+    const result = await client.query(query, [email]);
+    if (result.rows.length === 0) {
+      return res.status(HttpStatusCodes.NOT_FOUND).json({
+        message: "There is no Admin with these credentials 🤮",
+        data: result.rows,
+      });
+    } else {
+      const admin = result.rows[0];
+
+      if (admin.admin_password === password) {
+        return res
+          .status(HttpStatusCodes.OK)
+          .json({ message: "Login successful", data: admin });
       } else {
-        if (results[0].adminPassword === password) {
-          return res
-            .status(HttpStatusCodes.OK)
-            .json({ message: "Login successful", data: results });
-        } else {
-          return res
-            .status(HttpStatusCodes.UNAUTHORIZED)
-            .json({ message: "Invalid password", data: "" });
-        }
+        return res
+          .status(HttpStatusCodes.UNAUTHORIZED)
+          .json({ message: "Invalid password", data: "" });
       }
-    });
+    }
   } catch (error) {
     console.error("Error during login:", error);
-    res
+    return res
       .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: "Internal server error" });
   }
@@ -435,6 +429,31 @@ const debounceSearch = async (req, res) => {
   }
 };
 
+const addLog = async (req, res) => {
+  console.log("in log");
+  const { log, time } = req.body;
+  if (!log || !time) {
+    return res.status(HttpStatusCodes.BAD_REQUEST).json({
+      message: "Missing required fields: log or time",
+    });
+  }
+  console.log(log, time);
+  const query = `INSERT INTO logs (log, time) VALUES ($1, $2);`;
+  try {
+    const result = await client.query(query, [log, time]);
+    return res.status(HttpStatusCodes.CREATED).json({
+      message: "Log added successfully",
+      data: result.rows,
+    });
+  } catch (error) {
+    console.error("Error adding log:", error);
+    return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: "Error adding log",
+      data: error,
+    });
+  }
+};
+
 module.exports = {
   AdminLogin,
   AddPrisoner,
@@ -452,4 +471,5 @@ module.exports = {
   check,
   buildQuery,
   debounceSearch,
+  addLog
 };

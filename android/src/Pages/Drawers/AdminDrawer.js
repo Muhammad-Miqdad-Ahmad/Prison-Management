@@ -188,7 +188,7 @@ const AdminDrawer = () => {
           headerTitleAlign: "center",
         }}
       />
-      {adminData?.accesslevel === undefined ? (
+      {adminData?.accesslevel === 1 ? (
         <Drawer.Screen
         name="Alter Admin Data"
         component={AlterTabs}
