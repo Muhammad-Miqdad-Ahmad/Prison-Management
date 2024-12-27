@@ -1,7 +1,10 @@
 import sys
 import cv2
 from pyzbar import pyzbar
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QLineEdit, QVBoxLayout, QWidget, QTextEdit, QStackedWidget, QMessageBox, QTableWidget, QTableWidgetItem
+from PyQt5.QtWidgets import (
+    QApplication, QMainWindow, QPushButton, QLabel, QLineEdit, QVBoxLayout, QWidget, QTextEdit, QStackedWidget,
+    QMessageBox, QTableWidget, QTableWidgetItem
+)
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap
 from backend import PrisonManagementBackend
@@ -19,15 +22,7 @@ class MainApp(QMainWindow):
         self.setCentralWidget(self.stacked_widget)
 
         self.apply_styles()
-        self.init_login_view()
-        self.init_guard_dashboard()
-        self.init_prisoner_dashboard()
-        self.init_complaint_view()
-        self.init_qr_scanner_view()
-        self.init_admin_dashboard()
-        self.init_emergency_alert_view()
-        self.init_check_records_view()
-        self.init_check_visitation_view()
+        self.init_views()
 
         # Initialize backend
         self.backend = PrisonManagementBackend(dbname="Prison", user="postgres", password="qwas@M1604", host="localhost", port="5432")
@@ -55,6 +50,15 @@ class MainApp(QMainWindow):
         """
         self.input_style = "font-size: 18px; padding: 8px; background-color: #333333; color: white; border-radius: 8px;"
 
+    def init_views(self):
+        self.init_login_view()
+        self.init_guard_dashboard()
+        self.init_prisoner_dashboard()
+        self.init_complaint_view()
+        self.init_qr_scanner_view()
+        self.init_admin_dashboard()
+        self.init_emergency_alert_view()
+
     def init_login_view(self):
         login_widget = QWidget()
         layout = QVBoxLayout()
@@ -62,16 +66,16 @@ class MainApp(QMainWindow):
         self.login_label = QLabel("Login as Guard or Prisoner")
         self.login_label.setStyleSheet(self.label_style)
         self.username_input = QLineEdit()
-        self.username_input.setPlaceholderText("Enter Username")
+        self.username_input.setPlaceholderText("Enter ID")
         self.username_input.setStyleSheet(self.input_style)
 
         self.guard_login_button = QPushButton("Login as Guard")
         self.guard_login_button.setStyleSheet(self.button_style)
-        self.guard_login_button.clicked.connect(self.show_guard_dashboard)
+        self.guard_login_button.clicked.connect(self.guard_login)
 
         self.prisoner_login_button = QPushButton("Login as Prisoner")
         self.prisoner_login_button.setStyleSheet(self.button_style)
-        self.prisoner_login_button.clicked.connect(self.show_prisoner_dashboard)
+        self.prisoner_login_button.clicked.connect(self.prisoner_login)
 
         layout.addWidget(self.login_label, alignment=Qt.AlignCenter)
         layout.addWidget(self.username_input, alignment=Qt.AlignCenter)
@@ -82,9 +86,38 @@ class MainApp(QMainWindow):
         login_widget.setLayout(layout)
         self.stacked_widget.addWidget(login_widget)
 
+    def guard_login(self):
+        guard_id = self.username_input.text()
+        try:
+            guard = self.backend.validate_guard_login(guard_id)
+            if guard:
+                self.guard_id = guard_id
+                self.user_type = 'guard'
+                self.show_guard_dashboard()
+            else:
+                QMessageBox.warning(self, "Login Failed", "Invalid Guard ID")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to validate guard login: {e}")
+
+    def prisoner_login(self):
+        prisoner_id = self.username_input.text()
+        try:
+            prisoner = self.backend.validate_prisoner_login(prisoner_id)
+            if prisoner:
+                self.prisoner_id = prisoner_id
+                self.user_type = 'prisoner'
+                self.show_prisoner_dashboard()
+            else:
+                QMessageBox.warning(self, "Login Failed", "Invalid Prisoner ID")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to validate prisoner login: {e}")
+
     def init_guard_dashboard(self):
         guard_widget = QWidget()
         layout = QVBoxLayout()
+
+        guard_label = QLabel("Guard Dashboard")
+        guard_label.setStyleSheet(self.label_style)
 
         self.checkin_button = QPushButton("Check-In")
         self.checkin_button.setStyleSheet(self.button_style)
@@ -98,13 +131,13 @@ class MainApp(QMainWindow):
         self.complaint_button.setStyleSheet(self.button_style)
         self.complaint_button.clicked.connect(self.show_complaint_view)
 
-        self.check_records_button = QPushButton("Check Records")
-        self.check_records_button.setStyleSheet(self.button_style)
-        self.check_records_button.clicked.connect(self.show_check_records_view)
+        self.view_records_button = QPushButton("View Prisoner Records")
+        self.view_records_button.setStyleSheet(self.button_style)
+        self.view_records_button.clicked.connect(self.view_prisoner_records)
 
-        self.check_visitation_button = QPushButton("Check Visitation")
-        self.check_visitation_button.setStyleSheet(self.button_style)
-        self.check_visitation_button.clicked.connect(self.show_check_visitation_view)
+        self.view_visitation_button = QPushButton("View Visitation Details")
+        self.view_visitation_button.setStyleSheet(self.button_style)
+        self.view_visitation_button.clicked.connect(self.view_visitation_details)
 
         self.back_button = QPushButton("Back")
         self.back_button.setStyleSheet(self.button_style)
@@ -114,15 +147,12 @@ class MainApp(QMainWindow):
         self.logout_button.setStyleSheet(self.button_style)
         self.logout_button.clicked.connect(self.close)
 
-        guard_label = QLabel("Guard Dashboard")
-        guard_label.setStyleSheet(self.label_style)
-
         layout.addWidget(guard_label, alignment=Qt.AlignCenter)
         layout.addWidget(self.checkin_button)
         layout.addWidget(self.checkout_button)
         layout.addWidget(self.complaint_button)
-        layout.addWidget(self.check_records_button)
-        layout.addWidget(self.check_visitation_button)
+        layout.addWidget(self.view_records_button)
+        layout.addWidget(self.view_visitation_button)
         layout.addWidget(self.back_button)
         layout.addWidget(self.logout_button)
         layout.setAlignment(Qt.AlignCenter)
@@ -137,7 +167,7 @@ class MainApp(QMainWindow):
         prisoner_label = QLabel("Prisoner Dashboard")
         prisoner_label.setStyleSheet(self.label_style)
 
-        self.sentence_display = QLabel()  # Display for the remaining sentence
+        self.sentence_display = QLabel()
         self.sentence_display.setStyleSheet(self.label_style)
         self.sentence_display.setWordWrap(True)
 
@@ -162,7 +192,7 @@ class MainApp(QMainWindow):
         logout_button.clicked.connect(self.close)
 
         layout.addWidget(prisoner_label, alignment=Qt.AlignCenter)
-        layout.addWidget(self.sentence_display)  # Add this to the layout
+        layout.addWidget(self.sentence_display)
         layout.addWidget(self.remaining_sentence_button)
         layout.addWidget(self.upcoming_visitation_button)
         layout.addWidget(self.complaint_button)
@@ -189,7 +219,7 @@ class MainApp(QMainWindow):
 
         back_button = QPushButton("Back")
         back_button.setStyleSheet(self.button_style)
-        back_button.clicked.connect(self.show_guard_dashboard)
+        back_button.clicked.connect(self.back_to_dashboard)
 
         layout.addWidget(complaint_label)
         layout.addWidget(self.complaint_text)
@@ -221,7 +251,6 @@ class MainApp(QMainWindow):
         qr_scanner_widget.setLayout(layout)
         self.stacked_widget.addWidget(qr_scanner_widget)
 
-        # Initialize camera
         self.cap = cv2.VideoCapture(0)
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_frame)
@@ -282,89 +311,30 @@ class MainApp(QMainWindow):
         emergency_widget.setLayout(layout)
         self.stacked_widget.addWidget(emergency_widget)
 
-    def init_check_records_view(self):
-        check_records_widget = QWidget()
-        layout = QVBoxLayout()
-
-        records_label = QLabel("Check Records")
-        records_label.setStyleSheet(self.label_style)
-
-        self.records_table = QTableWidget()
-        self.records_table.setColumnCount(5)  # Adjust the number of columns as needed
-        self.records_table.setHorizontalHeaderLabels(["ID", "Name", "DOB", "Nationality", "Status"])
-
-        back_button = QPushButton("Back")
-        back_button.setStyleSheet(self.button_style)
-        back_button.clicked.connect(self.show_guard_dashboard)
-
-        layout.addWidget(records_label, alignment=Qt.AlignCenter)
-        layout.addWidget(self.records_table)
-        layout.addWidget(back_button)
-        layout.setAlignment(Qt.AlignTop)
-
-        check_records_widget.setLayout(layout)
-        self.stacked_widget.addWidget(check_records_widget)
-
-    def init_check_visitation_view(self):
-        check_visitation_widget = QWidget()
-        layout = QVBoxLayout()
-
-        visitation_label = QLabel("Check Visitation")
-        visitation_label.setStyleSheet(self.label_style)
-
-        self.visitation_table = QTableWidget()
-        self.visitation_table.setColumnCount(5)  # Adjust the number of columns as needed
-        self.visitation_table.setHorizontalHeaderLabels(["ID", "Prisoner ID", "Visitor ID", "Date", "Time"])
-
-        back_button = QPushButton("Back")
-        back_button.setStyleSheet(self.button_style)
-        back_button.clicked.connect(self.show_guard_dashboard)
-
-        layout.addWidget(visitation_label, alignment=Qt.AlignCenter)
-        layout.addWidget(self.visitation_table)
-        layout.addWidget(back_button)
-        layout.setAlignment(Qt.AlignTop)
-
-        check_visitation_widget.setLayout(layout)
-        self.stacked_widget.addWidget(check_visitation_widget)
-
-    def show_check_records_view(self):
-        self.stacked_widget.setCurrentWidget(self.stacked_widget.widget(7))
-        self.load_records()
-
-    def show_check_visitation_view(self):
-        self.stacked_widget.setCurrentWidget(self.stacked_widget.widget(8))
-        self.load_visitation()
-
-    def load_records(self):
-        records = self.backend.get_prisoners()
-        self.records_table.setRowCount(len(records))
-        for row_idx, record in enumerate(records):
-            self.records_table.setItem(row_idx, 0, QTableWidgetItem(str(record['prisoner_id'])))
-            self.records_table.setItem(row_idx, 1, QTableWidgetItem(f"{record['person']['first_name']} {record['person']['last_name']}"))
-            self.records_table.setItem(row_idx, 2, QTableWidgetItem(record['person']['dob']))
-            self.records_table.setItem(row_idx, 3, QTableWidgetItem(record['person']['nationality']))
-            self.records_table.setItem(row_idx, 4, QTableWidgetItem(record['prisoner_status']))
-
-    def load_visitation(self):
-        visitations = self.backend.get_visiting_reservations()
-        self.visitation_table.setRowCount(len(visitations))
-        for row_idx, visitation in enumerate(visitations):
-            self.visitation_table.setItem(row_idx, 0, QTableWidgetItem(str(visitation['reservation_id'])))
-            self.visitation_table.setItem(row_idx, 1, QTableWidgetItem(str(visitation['prisoner_id'])))
-            self.visitation_table.setItem(row_idx, 2, QTableWidgetItem(str(visitation['visitor_id'])))
-            self.visitation_table.setItem(row_idx, 3, QTableWidgetItem(visitation['visit_date']))
-            self.visitation_table.setItem(row_idx, 4, QTableWidgetItem(visitation['reservation_time']))
-
     def show_remaining_sentence(self):
-        remaining_sentence = "2 years, 5 months, 10 days"  # Example value
-        self.sentence_display.setText(f"Your Remaining Sentence: {remaining_sentence}")
-        print(f"Remaining Sentence: {remaining_sentence}")
+        try:
+            remaining_sentence = self.backend.get_remaining_sentence(self.prisoner_id)
+            self.sentence_display.setText(f"Your Remaining Sentence: {remaining_sentence}")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to load remaining sentence: {e}")
 
     def show_upcoming_visitations(self):
-        visitation_details = "Next visitation: December 15, 2024, at 2:00 PM"  # Example value
-        self.sentence_display.setText(f"Upcoming Visitations: {visitation_details}")
-        print(f"Upcoming Visitations: {visitation_details}")
+        try:
+            visitations = self.backend.get_upcoming_visitations(self.prisoner_id)
+            self.visitation_table = QTableWidget()
+            self.visitation_table.setRowCount(len(visitations))
+            self.visitation_table.setColumnCount(5)
+            self.visitation_table.setHorizontalHeaderLabels(["Slot ID", "Prisoner ID", "Reservation Time", "Visitor ID", "Visit Date"])
+            for row_idx, visitation in enumerate(visitations):
+                self.visitation_table.setItem(row_idx, 0, QTableWidgetItem(str(visitation['slot_id'])))
+                self.visitation_table.setItem(row_idx, 1, QTableWidgetItem(str(visitation['prisoner_id'])))
+                self.visitation_table.setItem(row_idx, 2, QTableWidgetItem(str(visitation['reservation_time'])))
+                self.visitation_table.setItem(row_idx, 3, QTableWidgetItem(str(visitation['visitor_id'])))
+                self.visitation_table.setItem(row_idx, 4, QTableWidgetItem(str(visitation['visit_date'])))
+            self.stacked_widget.addWidget(self.visitation_table)
+            self.stacked_widget.setCurrentWidget(self.visitation_table)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to load upcoming visitations: {e}")
 
     def set_check_in_mode(self):
         self.is_checking_in = True
@@ -404,16 +374,27 @@ class MainApp(QMainWindow):
 
     def submit_complaint(self):
         complaint_text = self.complaint_text.toPlainText()
-        print(f"Complaint Submitted: {complaint_text}")
-        self.complaint_text.clear()
-        self.show_guard_dashboard()
+        try:
+            if self.user_type == 'prisoner':
+                self.backend.submit_complaint(self.prisoner_id, complaint_text)
+            elif self.user_type == 'guard':
+                self.backend.submit_complaint(self.guard_id, complaint_text)
+            QMessageBox.information(self, "Success", "Complaint Submitted Successfully")
+            self.complaint_text.clear()
+            self.back_to_dashboard()
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to submit complaint: {e}")
+
+    def back_to_dashboard(self):
+        if self.user_type == 'prisoner':
+            self.show_prisoner_dashboard()
+        elif self.user_type == 'guard':
+            self.show_guard_dashboard()
 
     def show_manage_users_view(self):
-        # Placeholder for manage users view
         print("Manage Users View")
 
     def show_view_reports_view(self):
-        # Placeholder for view reports view
         print("View Reports View")
 
     def update_frame(self):
@@ -436,11 +417,122 @@ class MainApp(QMainWindow):
             self.camera_feed.setPixmap(QPixmap.fromImage(image))
 
     def show_message(self, qr_data):
-        message = "Check-In" if self.is_checking_in else "Check-Out"
-        QMessageBox.information(self, "QR Code Scanned", f"{message} successful!\nQR Code Data: {qr_data}")
+        try:
+            if self.is_checking_in:
+                self.backend.insert_check_in(self.guard_id, qr_data)
+                message = "Check-In successful!"
+            else:
+                self.backend.insert_check_out(self.guard_id, qr_data)
+                message = "Check-Out successful!"
+            QMessageBox.information(self, "QR Code Scanned", f"{message}\nQR Code Data: {qr_data}")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to process QR code: {e}")
+
+    def view_prisoner_records(self):
+        try:
+            prisoners = self.backend.get_prisoner_records()
+            self.prisoner_table = QTableWidget()
+            self.prisoner_table.setRowCount(len(prisoners))
+            self.prisoner_table.setColumnCount(5)
+            self.prisoner_table.setHorizontalHeaderLabels(["ID", "Name", "Age", "Crime", "Sentence"])
+            for row_idx, prisoner in enumerate(prisoners):
+                self.prisoner_table.setItem(row_idx, 0, QTableWidgetItem(str(prisoner['id'])))
+                self.prisoner_table.setItem(row_idx, 1, QTableWidgetItem(prisoner['name']))
+                self.prisoner_table.setItem(row_idx, 2, QTableWidgetItem(str(prisoner['age'])))
+                self.prisoner_table.setItem(row_idx, 3, QTableWidgetItem(prisoner['crime']))
+                self.prisoner_table.setItem(row_idx, 4, QTableWidgetItem(prisoner['sentence']))
+            self.stacked_widget.addWidget(self.prisoner_table)
+            self.stacked_widget.setCurrentWidget(self.prisoner_table)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to load prisoner records: {e}")
+
+
+    def view_visitation_details(self):
+        try:
+            visitations = self.backend.get_visitation_details()
+            self.visitation_table = QTableWidget()
+            self.visitation_table.setRowCount(len(visitations))
+            self.visitation_table.setColumnCount(5)
+            self.visitation_table.setHorizontalHeaderLabels(["ID", "Prison ID", "Day of Week", "Start Time", "End Time"])
+            for row_idx, visitation in enumerate(visitations):
+                self.visitation_table.setItem(row_idx, 0, QTableWidgetItem(str(visitation.get('slot_id', ''))))
+                self.visitation_table.setItem(row_idx, 1, QTableWidgetItem(str(visitation.get('prison_id', ''))))
+                self.visitation_table.setItem(row_idx, 2, QTableWidgetItem(str(visitation.get('day_of_week', ''))))
+                self.visitation_table.setItem(row_idx, 3, QTableWidgetItem(str(visitation.get('start_time', ''))))
+                self.visitation_table.setItem(row_idx, 4, QTableWidgetItem(str(visitation.get('end_time', ''))))
+            self.stacked_widget.addWidget(self.visitation_table)
+            self.stacked_widget.setCurrentWidget(self.visitation_table)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to load visitation details: {e}")
+
+    def update_frame(self):
+        ret, frame = self.cap.read()
+        if ret:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            qr_codes = pyzbar.decode(frame)
+            for qr_code in qr_codes:
+                x, y, w, h = qr_code.rect
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                qr_data = qr_code.data.decode('utf-8')
+                print(f"QR Code Data: {qr_data}")
+                self.timer.stop()
+                self.cap.release()
+                self.show_message(qr_data)
+                self.show_guard_dashboard()
+                return
+
+            image = QImage(frame, frame.shape[1], frame.shape[0], QImage.Format_RGB888)
+            self.camera_feed.setPixmap(QPixmap.fromImage(image))
+
+    def show_message(self, qr_data):
+        try:
+            if self.is_checking_in:
+                self.backend.insert_check_in(self.guard_id, qr_data)
+                message = "Check-In successful!"
+            else:
+                self.backend.insert_check_out(self.guard_id, qr_data)
+                message = "Check-Out successful!"
+            QMessageBox.information(self, "QR Code Scanned", f"{message}\nQR Code Data: {qr_data}")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to process QR code: {e}")
+    def update_frame(self):
+        ret, frame = self.cap.read()
+        if ret:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            qr_codes = pyzbar.decode(frame)
+            for qr_code in qr_codes:
+                x, y, w, h = qr_code.rect
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                qr_data = qr_code.data.decode('utf-8')
+                print(f"QR Code Data: {qr_data}")
+                self.timer.stop()
+                self.cap.release()
+                self.show_message(qr_data)
+                self.show_guard_dashboard()
+                return
+
+        image = QImage(frame, frame.shape[1], frame.shape[0], QImage.Format_RGB888)
+        self.camera_feed.setPixmap(QPixmap.fromImage(image))
+    def view_prisoner_records(self):
+        try:
+            prisoners = self.backend.get_prisoner_records()
+            self.prisoner_table = QTableWidget()
+            self.prisoner_table.setRowCount(len(prisoners))
+            self.prisoner_table.setColumnCount(5)
+            self.prisoner_table.setHorizontalHeaderLabels(["ID", "Name", "Age", "Crime", "Sentence"])
+            for row_idx, prisoner in enumerate(prisoners):
+                self.prisoner_table.setItem(row_idx, 0, QTableWidgetItem(str(prisoner['id'])))
+                self.prisoner_table.setItem(row_idx, 1, QTableWidgetItem(prisoner['name']))
+                self.prisoner_table.setItem(row_idx, 2, QTableWidgetItem(str(prisoner['age'])))
+                self.prisoner_table.setItem(row_idx, 3, QTableWidgetItem(prisoner['crime']))
+                self.prisoner_table.setItem(row_idx, 4, QTableWidgetItem(prisoner['sentence']))
+            self.stacked_widget.addWidget(self.prisoner_table)
+            self.stacked_widget.setCurrentWidget(self.prisoner_table)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to load prisoner records: {e}")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    main_window = MainApp()
-    main_window.show()
+    main_app = MainApp()
+    main_app.show()
     sys.exit(app.exec_())

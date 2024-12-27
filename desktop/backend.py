@@ -4,96 +4,88 @@ from psycopg2.extras import RealDictCursor
 class PrisonManagementBackend:
     def __init__(self, dbname, user, password, host, port):
         self.connection = psycopg2.connect(
-            dbname=dbname,
-            user=user,
-            password=password,
-            host=host,
-            port=port
+            dbname='Prison',
+            user='postgres',
+            password='qwas@M1604',
+            host='localhost',
+            port=5432
         )
         self.cursor = self.connection.cursor(cursor_factory=RealDictCursor)
 
-    def close(self):
-        self.cursor.close()
-        self.connection.close()
 
-    def insert_prison(self, prison_name, prison_location):
-        query = """
-        INSERT INTO Prisions (prision_name, prision_location)
-        VALUES (%s, %s) RETURNING prision_id;
-        """
-        self.cursor.execute(query, (prison_name, prison_location))
-        self.connection.commit()
-        return self.cursor.fetchone()['prision_id']
 
-    def insert_guard(self, prision_id, person, joining_date, shift, qr_code):
-        query = """
-        INSERT INTO Guards (prision_id, person, joining_date, shift, qr_code)
-        VALUES (%s, %s, %s, %s, %s) RETURNING guard_id;
-        """
-        self.cursor.execute(query, (prision_id, person, joining_date, shift, qr_code))
-        self.connection.commit()
-        return self.cursor.fetchone()['guard_id']
+        self.connection.autocommit = True
 
-    def insert_prisoner(self, prision_id, person, sentence_start_date, sentence_end_date, prisoner_status, visitor_1, visitor_2, sentence, crime):
-        query = """
-        INSERT INTO Prisoner (prision_id, person, sentence_start_date, sentence_end_date, prisoner_status, visitor_1, visitor_2, sentence, crime)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING prisoner_id;
-        """
-        self.cursor.execute(query, (prision_id, person, sentence_start_date, sentence_end_date, prisoner_status, visitor_1, visitor_2, sentence, crime))
-        self.connection.commit()
-        return self.cursor.fetchone()['prisoner_id']
+    def get_prisoner_records(self):
+        with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM Prisoner")
+            return cursor.fetchall()
 
-    def insert_incident_report(self, reported_by_guard_id, prisoner_involved_id, incident_date, incident_time, incident_description, action_taken, resolution_date, additional_notes):
-        query = """
-        INSERT INTO Incident_Reports (reported_by_guard_id, prisoner_involved_id, incident_date, incident_time, incident_description, action_taken, resolution_date, additional_notes)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING incident_id;
-        """
-        self.cursor.execute(query, (reported_by_guard_id, prisoner_involved_id, incident_date, incident_time, incident_description, action_taken, resolution_date, additional_notes))
-        self.connection.commit()
-        return self.cursor.fetchone()['incident_id']
-
-    def get_prisions(self):
-        query = "SELECT * FROM Prisions;"
-        self.cursor.execute(query)
-        return self.cursor.fetchall()
-
-    def get_guards(self):
-        query = "SELECT * FROM Guards;"
-        self.cursor.execute(query)
-        return self.cursor.fetchall()
-
-    def get_prisoners(self):
-        query = "SELECT * FROM Prisoner;"
-        self.cursor.execute(query)
-        return self.cursor.fetchall()
-
-    def get_incident_reports(self):
-        query = "SELECT * FROM Incident_Reports;"
-        self.cursor.execute(query)
-        return self.cursor.fetchall()
+    def get_visitation_details(self):
+        with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM visitingDetails")
+            return cursor.fetchall()
 
     def validate_guard_login(self, guard_id):
-        query = "SELECT * FROM Guards WHERE guard_id = %s;"
-        self.cursor.execute(query, (guard_id,))
-        return self.cursor.fetchone()
+        with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM Guards WHERE guard_id = %s", (guard_id,))
+            return cursor.fetchone()
 
     def validate_prisoner_login(self, prisoner_id):
-        query = "SELECT * FROM Prisoner WHERE prisoner_id = %s;"
-        self.cursor.execute(query, (prisoner_id,))
-        return self.cursor.fetchone()
+        with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM Prisoner WHERE prisoner_id = %s", (prisoner_id,))
+            return cursor.fetchone()
 
-if __name__ == "__main__":
-    backend = PrisonManagementBackend(dbname="Prison", user="postgres", password="qwas@M1604", host="localhost", port="5432")
+    def get_remaining_sentence(self, prisoner_id):
+        with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("""
+                SELECT sentence_end_date - CURRENT_DATE AS remaining_sentence
+                FROM Prisoner
+                WHERE prisoner_id = %s
+            """, (prisoner_id,))
+            result = cursor.fetchone()
+            return result['remaining_sentence'] if result else None
 
-    # Example usage
-    prision_id = backend.insert_prison("Central Jail Karachi", "Karachi, Sindh")
-    guard_id = backend.insert_guard(prision_id, ('Ali', 'Khan', '1985-01-15', 39, 'Pakistani', 'Male'), '2020-01-01', 'Morning', 12345)
-    prisoner_id = backend.insert_prisoner(prision_id, ('Riaz', 'Ahmed', '1985-07-20', 39, 'Pakistani', 'Male'), '2023-01-01', None, 'Active', 201, 202, '5 years', 'Theft')
-    incident_id = backend.insert_incident_report(guard_id, prisoner_id, '2023-06-01', '12:30:00', 'Prisoner attempted to escape', 'Increased surveillance', '2023-06-05', 'None')
+    def get_upcoming_visitations(self, prisoner_id):
+        with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("""
+                SELECT vs.slot_id, vs.slot_time, vr.reservation_time, vr.visitor_id, vr.visit_date
+                FROM visitingReservations vr
+                JOIN visitingSlots vs ON vr.slot_id = vs.slot_id
+                WHERE vr.prisoner_id = %s AND vr.visit_date >= CURRENT_DATE
+                ORDER BY vr.visit_date
+            """, (prisoner_id,))
+            return cursor.fetchall()
 
-    print("Prisions:", backend.get_prisions())
-    print("Guards:", backend.get_guards())
-    print("Prisoners:", backend.get_prisoners())
-    print("Incident Reports:", backend.get_incident_reports())
+    def insert_check_in(self, guard_id, qr_data):
+        with self.connection.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO GuardAttendance (guard_id, check_in_time, qr_code)
+                VALUES (%s, CURRENT_TIMESTAMP, %s)
+            """, (guard_id, qr_data))
 
-    backend.close()
+    def insert_check_out(self, guard_id, qr_data):
+        with self.connection.cursor() as cursor:
+            cursor.execute("""
+                UPDATE GuardAttendance
+                SET check_out_time = CURRENT_TIMESTAMP
+                WHERE guard_id = %s AND qr_code = %s AND check_out_time IS NULL
+            """, (guard_id, qr_data))
+
+    def submit_complaint(self, prisoner_id, complaint_text):
+        with self.connection.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO Incident_Reports (prisoner_involved_id, incident_description, incident_date, incident_time)
+                VALUES (%s, %s, CURRENT_DATE, CURRENT_TIME)
+            """, (prisoner_id, complaint_text))
+
+    def get_incident_reports(self, prisoner_id):
+        with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("""
+                SELECT * FROM Incident_Reports
+                WHERE prisoner_involved_id = %s
+            """, (prisoner_id,))
+            return cursor.fetchall()
+
+    def close(self):
+        self.connection.close()
