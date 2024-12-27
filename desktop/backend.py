@@ -15,14 +15,22 @@ class PrisonManagementBackend:
 
 
         self.connection.autocommit = True
+ 
     def get_prisoner_records(self):
         with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("SELECT * FROM Prisoner")
-            return cursor.fetchall()
-    def get_prisoner_records(self):
-        with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("SELECT * FROM Prisoner")
-            return cursor.fetchall()
+            cursor.execute("SELECT prisoner_id, prision_id, person, sentence_start_date, sentence_end_date, prisoner_status, visitor_1, visitor_2, sentence, crime FROM Prisoner")
+            prisoners = cursor.fetchall()
+            for prisoner in prisoners:
+                person = prisoner['person'][1:-1].split(',')
+                prisoner['person'] = {
+                    'first_name': person[0].strip('"'),
+                    'last_name': person[1].strip('"'),
+                    'dob': person[2].strip('"'),
+                    'age': person[3].strip('"'),
+                    'nationality': person[4].strip('"'),
+                    'gender': person[5].strip('"')
+                }
+            return prisoners
 
     def get_visitation_details(self):
         with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:

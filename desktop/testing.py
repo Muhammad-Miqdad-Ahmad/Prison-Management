@@ -536,8 +536,8 @@ class MainApp(QMainWindow):
                 self.prisoner_table.setItem(row_idx, 2, QTableWidgetItem(str(prisoner['person']['age'])))
                 self.prisoner_table.setItem(row_idx, 3, QTableWidgetItem(prisoner['crime']))
                 self.prisoner_table.setItem(row_idx, 4, QTableWidgetItem(prisoner['sentence']))
-                self.stacked_widget.addWidget(self.prisoner_table)
-                self.stacked_widget.setCurrentWidget(self.prisoner_table)
+            self.stacked_widget.addWidget(self.prisoner_table)
+            self.stacked_widget.setCurrentWidget(self.prisoner_table)
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to load prisoner records: {e}")
 
