@@ -4,19 +4,24 @@ import {
   Button,
   Text,
   Provider as PaperProvider,
-  MD3DarkTheme,
-  MD3LightTheme,
 } from "react-native-paper";
 import {
   DatePickerModal,
   enGB,
   registerTranslation,
 } from "react-native-paper-dates";
-import { useColorScheme } from "react-native";
 import { AdminAddPrisonerStyle, centre } from "../Styles/AdminStyling";
 
 // Adding children prop to allow passing content above the date picker
-const CustomDatePicker = ({ children, date, setDate, theme }) => {
+const CustomDatePicker = ({
+  children,
+  date,
+  data,
+  setDate,
+  setData,
+  theme,
+  lable,
+}) => {
   const [singleOpen, setSingleOpen] = useState(false);
 
   useEffect(() => registerTranslation("en-GB", enGB), []);
@@ -35,6 +40,10 @@ const CustomDatePicker = ({ children, date, setDate, theme }) => {
   const onChangeSingle = useCallback((params) => {
     setSingleOpen(false);
     setDate(params.date);
+    setData((prevData) => ({
+      ...prevData,
+      [lable]: params.date,
+    }));
   }, []);
 
   const onDismissSingle = useCallback(() => {
@@ -59,7 +68,11 @@ const CustomDatePicker = ({ children, date, setDate, theme }) => {
           <Text
             style={[AdminAddPrisonerStyle.text, AdminAddPrisonerStyle.dateText]}
           >
-            {date ? dateFormatter.format(date) : "No date selected."}
+            {date
+              ? dateFormatter.format(date)
+              : data?.[lable]
+              ? dateFormatter.format(data?.[lable])
+              : "Select a date"}
           </Text>
           <Button
             onPress={() => setSingleOpen(true)}

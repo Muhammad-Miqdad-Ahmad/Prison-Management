@@ -7,8 +7,6 @@ import AlterTabs from "../Tabs/AlterTabs";
 import GenericTab from "../Tabs/GenericTab";
 
 import AddPersonData from "../AddData";
-import UpdateData from "../UpdateData";
-import RemovePerson from "../RemoveData";
 import { useSelector } from "react-redux";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 
@@ -16,13 +14,21 @@ import { LogBox } from "react-native";
 import AddGuardData from "../AddGuardData";
 import AddAdminData from "../AddAdminData";
 import AddPrisonerData from "../AddPrisonerData";
-import { submitAddAdmin } from "../../Functions/Functions";
+
+import RemovePrisoner from "../Tabs/RemovePrisoner";
+import UpdatePrisoner from "../Tabs/UpdatePrisoner";
+import RemoveGuard from "../Tabs/RemoveGuard";
+import UpdateGuard from "../Tabs/UpdateGuard";
+import AddPrison from "../Tabs/AddPrison";
+import RemovePrison from "../Tabs/RemovePrison";
+import RemoveAdmin from "../Tabs/RemoveAdmin";
+import UpdateAdmin from "../Tabs/UpdateAdmin";
 
 LogBox.ignoreLogs([
   "Non-serializable values were found in the navigation state",
 ]);
 
-const AdminDrawer = ({ navigation }) => {
+const AdminDrawer = () => {
 
   const Drawer = createDrawerNavigator();
   const adminData = useSelector((state) => state.admin.adminData);
@@ -42,23 +48,23 @@ const AdminDrawer = ({ navigation }) => {
       ],
       barColor: "blue",
       activeIconColor: "#FFFFFF",
-      callBack: console.log,
+      callBack: "submitAddPrisoner",        // the call back to add the pisoner
     },
     {
       text: "Remove",
       route: GenericTab,
       iconName: "trash",
-      component: [<RemovePerson />],
+      component: [<RemovePrisoner />],
       componentText: [""],
       barColor: "red",
       activeIconColor: "#FFFFFF",
-      callBack: console.log,
+      callBack: "submitDeletePrisoner",
     },
     {
       text: "Update",
       route: GenericTab,
       iconName: "edit",
-      component: [<UpdateData />],
+      component: [<UpdatePrisoner />],
       componentText: [""],
       barColor: "yellow",
       activeIconColor: "#000000",
@@ -80,7 +86,7 @@ const AdminDrawer = ({ navigation }) => {
       text: "Remove",
       route: GenericTab,
       iconName: "trash",
-      component: [<RemovePerson />],
+      component: [<RemoveGuard />],
       componentText: [""],
       barColor: "red",
       activeIconColor: "#FFFFFF",
@@ -90,7 +96,7 @@ const AdminDrawer = ({ navigation }) => {
       text: "Update",
       route: GenericTab,
       iconName: "edit",
-      component: [<UpdateData />],
+      component: [<UpdateGuard />],
       componentText: [""],
       barColor: "yellow",
       activeIconColor: "#000000",
@@ -106,13 +112,13 @@ const AdminDrawer = ({ navigation }) => {
       componentText: [""],
       barColor: "blue",
       activeIconColor: "#FFFFFF",
-      callBack: submitAddAdmin,
+      callBack: "submitAddAdmin",
     },
     {
       text: "Remove",
       route: GenericTab,
       iconName: "trash",
-      component: [<RemovePerson />],
+      component: [<RemoveAdmin />],
       componentText: [""],
       barColor: "red",
       activeIconColor: "#FFFFFF",
@@ -122,7 +128,7 @@ const AdminDrawer = ({ navigation }) => {
       text: "Update",
       route: GenericTab,
       iconName: "edit",
-      component: [<UpdateData />],
+      component: [<UpdateAdmin />],
       componentText: [""],
       barColor: "yellow",
       activeIconColor: "#000000",
@@ -134,8 +140,8 @@ const AdminDrawer = ({ navigation }) => {
       text: "Add",
       route: GenericTab,
       iconName: "plus",
-      component: [<AddPersonData />, <AddAdminData />],
-      componentText: ["Add Personal detail of the Admin", "Add Admin detail"],
+      component: [<AddPrison />],
+      componentText: [""],
       barColor: "blue",
       activeIconColor: "#FFFFFF",
       callBack: console.log,
@@ -144,20 +150,10 @@ const AdminDrawer = ({ navigation }) => {
       text: "Remove",
       route: GenericTab,
       iconName: "trash",
-      component: [<RemovePerson />],
+      component: [<RemovePrison />],
       componentText: [""],
       barColor: "red",
       activeIconColor: "#FFFFFF",
-      callBack: console.log,
-    },
-    {
-      text: "Update",
-      route: GenericTab,
-      iconName: "edit",
-      component: [<UpdateData />],
-      componentText: [""],
-      barColor: "yellow",
-      activeIconColor: "#000000",
       callBack: console.log,
     },
   ];
@@ -192,21 +188,34 @@ const AdminDrawer = ({ navigation }) => {
           headerTitleAlign: "center",
         }}
       />
-      {adminData?.accesslevel === undefined ? (
+      {adminData?.accesslevel === 1 ? (
         <Drawer.Screen
-          name="Alter Admin Data"
-          component={AlterTabs}
-          initialParams={{
-            tabs: alterAdminData,
-          }}
-          options={{
-            title: "Alter Admin Data",
-            headerBackVisible: false,
-            headerBackTitleVisible: false,
-            headerTitleAlign: "center",
-          }}
+        name="Alter Admin Data"
+        component={AlterTabs}
+        initialParams={{
+          tabs: alterAdminData,
+        }}
+        options={{
+          title: "Alter Admin Data",
+          headerBackVisible: false,
+          headerBackTitleVisible: false,
+          headerTitleAlign: "center",
+        }}
         />
       ) : null}
+      <Drawer.Screen
+        name="Alter Prison data"
+        component={AlterTabs}
+        initialParams={{
+          tabs: alterPrisonData,
+        }}
+        options={{
+          title: "Alter Prison Data", //? the title that will be shown on the tab
+          headerBackVisible: false,
+          headerBackTitleVisible: false,
+          headerTitleAlign: "center",
+        }}
+      />
     </Drawer.Navigator>
   );
 };

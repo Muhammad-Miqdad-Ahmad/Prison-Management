@@ -3,6 +3,8 @@ import React from "react";
 import CustomTextInput from "../Custom/CustomTextinput";
 import { AdminAddPrisonerStyle, centre } from "../Styles/AdminStyling";
 import CustomBR from "../Custom/customBR";
+import { submitAddAdmin } from "../Functions/Functions";
+import CustomSubmit from "../Custom/CustomSubmit";
 
 const AddAdminData = ({ data, setData }) => {
   return (
@@ -29,6 +31,8 @@ const AddAdminData = ({ data, setData }) => {
         {"write the prison ID"}
       </CustomTextInput>
       <CustomBR />
+      <CustomBR />
+      <CustomSubmit callback={submitAddAdmin} data={data} />
     </View>
   );
 };

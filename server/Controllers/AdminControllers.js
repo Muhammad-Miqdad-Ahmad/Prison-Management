@@ -38,7 +38,7 @@ const check = (req, res) => {
     if (err) {
       console.error(err);
       return res.status(HttpStatusCodes.NOT_FOUND).json({
-        message: "AHHHHH fuck 😒\nHere we go again 🤦‍♂️",
+        message: "Just a message",
         data: err,
       });
     } else {
@@ -59,40 +59,30 @@ const AdminLogin = async (req, res) => {
       .json({ message: "Email and password are required", data: "" });
   }
 
-  const query = "SELECT * FROM chillarAdmins WHERE adminEmail = ?";
+  const query = "SELECT * FROM admins WHERE admin_email = $1";
   try {
-    // Execute the SQL query
-    client.query(query, [email], (err, results) => {
-      if (err) {
-        console.log("in if");
-        console.error(err);
-        return res.status(HttpStatusCodes.NOT_FOUND).json({
-          message: "AHHHHH fuck 😒\nHere we go again 🤦‍♂️",
-          data: err,
-        });
-      } else if (!results || results.length === 0) {
-        console.log("in else if");
-        return res.status(HttpStatusCodes.NOT_FOUND).json({
-          message: "There aint no nigga with this fuck 🤮",
-          data: results,
-        });
-      } else {
-        console.log("in else");
+    const result = await client.query(query, [email]);
+    if (result.rows.length === 0) {
+      return res.status(HttpStatusCodes.NOT_FOUND).json({
+        message: "There is no Admin with these credentials 🤮",
+        data: result.rows,
+      });
+    } else {
+      const admin = result.rows[0];
 
-        if (results[0].adminPassword === password) {
-          return res
-            .status(HttpStatusCodes.OK)
-            .json({ message: "Login successful", data: results });
-        } else {
-          return res
-            .status(HttpStatusCodes.UNAUTHORIZED)
-            .json({ message: "Invalid password", data: "" });
-        }
+      if (admin.admin_password === password) {
+        return res
+          .status(HttpStatusCodes.OK)
+          .json({ message: "Login successful", data: admin });
+      } else {
+        return res
+          .status(HttpStatusCodes.UNAUTHORIZED)
+          .json({ message: "Invalid password", data: "" });
       }
-    });
+    }
   } catch (error) {
     console.error("Error during login:", error);
-    res
+    return res
       .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: "Internal server error" });
   }
@@ -127,13 +117,14 @@ const AddPrisoner = async (req, res) => {
     } else requiredFields.push(value);
   }
 
+  // // Explicitly cast `visitor_1`, `visitor_2`, and `prisoner_id` to NUMERIC
   const query = `
     INSERT INTO Prisoner (
       prision_id, 
       person, 
       sentence_start_date, 
       sentence_end_date, 
-      status,
+      prisoner_status,
       crime,
       sentence, 
       visitor_1, 
@@ -141,9 +132,12 @@ const AddPrisoner = async (req, res) => {
       prisoner_id
     ) 
     VALUES(
-    $1, 
-    ROW($2, $3, $4, $5, $6, $7), 
-    $8, $9, $10, $11, $12, $13, $14, $15
+      $1, 
+      ROW($2, $3, $4, $5, $6, $7), 
+      $8, $9, $10, $11, $12, 
+      CAST($13 AS NUMERIC), 
+      CAST($14 AS NUMERIC), 
+      CAST($15 AS NUMERIC)
     );`;
 
   return generic_add(res, query, requiredFields, client, HttpStatusCodes);
@@ -153,14 +147,14 @@ const AddGuard = async (req, res) => {
   const values = ({
     guardID,
     prisonID,
-    firstName,
-    lastName,
+    FirstName,
+    LastName,
     dateOfBirth,
-    age,
+    Age,
     nationality,
     gender,
     joiningDate,
-    shift,
+    guardShift,
     qrCode,
   } = req.body);
 
@@ -193,7 +187,25 @@ const AddGuard = async (req, res) => {
     );
   `;
 
-  return generic_add(res, query, requiredFields, client, HttpStatusCodes);
+  return generic_add(
+    res,
+    query,
+    [
+      guardID,
+      prisonID,
+      FirstName,
+      LastName,
+      dateOfBirth,
+      Age,
+      nationality,
+      gender,
+      joiningDate,
+      guardShift,
+      qrCode,
+    ],
+    client,
+    HttpStatusCodes
+  );
 };
 
 const AddAdmin = async (req, res) => {
@@ -214,7 +226,24 @@ const AddAdmin = async (req, res) => {
   generic_add(res, query, requiredFields, client, HttpStatusCodes);
 };
 
+const AddPrison = async (req, res) => {
+  const { prisonName, prisonLocation } = req.body;
+
+  if (!prisonName || !prisonLocation) {
+    return res.status(HttpStatusCodes.BAD_REQUEST).json({
+      message: "All fields (prisonName, prisonLocation) are required.",
+    });
+  }
+
+  const query = `INSERT INTO prisions (prision_name, prision_location)
+                    VALUES ($1, $2);`;
+
+  const requiredFields = [prisonName, prisonLocation];
+  generic_add(res, query, requiredFields, client, HttpStatusCodes);
+};
+
 const DeletePrisoner = async (req, res) => {
+  console.log("in here");
   const ID = req.query.prisonerID;
 
   if (!ID) {
@@ -254,14 +283,34 @@ const DeleteAdmin = async (req, res) => {
   return generic_delete(res, "admins", "admin_id", ID, client, HttpStatusCodes);
 };
 
+const DeletePrison = async (req, res) => {
+  const ID = req.query.prisonID;
+  if (!ID) {
+    return res
+
+      .status(HttpStatusCodes.BAD_REQUEST)
+      .json({ message: "Prison ID is required." });
+  }
+  return generic_delete(
+    res,
+    "prisions",
+    "prision_id",
+    ID,
+    client,
+    HttpStatusCodes
+  );
+};
+
 const UpdatePrisoner = async (req, res) => {
-  const { sentence_end_date, prisoner_status, visitor_1, visitor_2 } = req.body;
+  const { FirstName, LastName, Age, gender, Crime, Sentence } = req.body;
 
   const requiredFields = {
-    sentence_end_date,
-    prisoner_status,
-    visitor_1,
-    visitor_2,
+    FirstName,
+    LastName,
+    Age,
+    gender,
+    Crime,
+    Sentence,
   };
 
   return generic_update(
@@ -276,9 +325,15 @@ const UpdatePrisoner = async (req, res) => {
 };
 
 const UpdateGuard = async (req, res) => {
-  const { shift } = req.body;
+  const { FirstName, LastName, Age, gender, guardShift } = req.body;
 
-  const requiredFields = { shift };
+  const requiredFields = {
+    FirstName,
+    LastName,
+    Age,
+    gender,
+    guardShift,
+  };
 
   return generic_update(
     res,
@@ -292,13 +347,13 @@ const UpdateGuard = async (req, res) => {
 };
 
 const UpdateAdmin = async (req, res) => {
-  const { admin_email, admin_password } = req.body;
+  const { admin_password } = req.body;
 
-  const requiredFields = { admin_email, admin_password };
+  const requiredFields = { admin_password };
 
   return generic_update(
     res,
-    "admin",
+    "admins",
     "admin_id",
     req.body.adminID,
     requiredFields,
@@ -374,19 +429,47 @@ const debounceSearch = async (req, res) => {
   }
 };
 
+const addLog = async (req, res) => {
+  console.log("in log");
+  const { log, time } = req.body;
+  if (!log || !time) {
+    return res.status(HttpStatusCodes.BAD_REQUEST).json({
+      message: "Missing required fields: log or time",
+    });
+  }
+  console.log(log, time);
+  const query = `INSERT INTO logs (log, time) VALUES ($1, $2);`;
+  try {
+    const result = await client.query(query, [log, time]);
+    return res.status(HttpStatusCodes.CREATED).json({
+      message: "Log added successfully",
+      data: result.rows,
+    });
+  } catch (error) {
+    console.error("Error adding log:", error);
+    return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: "Error adding log",
+      data: error,
+    });
+  }
+};
+
 module.exports = {
-  GetAdminData,
   AdminLogin,
   AddPrisoner,
-  check,
-  buildQuery,
-  debounceSearch,
   AddAdmin,
   AddGuard,
+  AddPrison,
   DeletePrisoner,
   DeleteGuard,
   DeleteAdmin,
+  DeletePrison,
   UpdatePrisoner,
   UpdateGuard,
   UpdateAdmin,
+  GetAdminData,
+  check,
+  buildQuery,
+  debounceSearch,
+  addLog
 };

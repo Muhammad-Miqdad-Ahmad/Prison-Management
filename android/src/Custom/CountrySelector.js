@@ -6,12 +6,15 @@ import { Button } from "react-native-paper";
 import { AdminAddPrisonerStyle } from "../Styles/AdminStyling";
 import CustomBR from "./customBR";
 
-const CustomCountrySelector = () => {
+const CustomCountrySelector = ({ countrySetter, data }) => {
   const [country, setCountry] = useState(null); // State to store selected country
   const [visible, setVisible] = useState(false); // Control modal visibility
 
   const onSelect = (selectedCountry) => {
     setCountry(selectedCountry);
+    countrySetter((prev) => {
+      return { ...prev, nationality: selectedCountry.name };
+    }); // Update the country in the data object
     setVisible(false); // Close the modal after selection
   };
 
@@ -45,7 +48,11 @@ const CustomCountrySelector = () => {
         mode="contained-tonal"
         uppercase={false}
       >
-        {country ? `${country.name}` : "Choose a country"}
+        {country
+          ? `${country.name}`
+          : data?.nationality
+          ? data?.nationality
+          : "Choose a country"}
       </Button>
     </View>
   );

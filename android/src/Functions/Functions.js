@@ -64,27 +64,32 @@ export const onBackPress = () => {
 };
 
 export const postData = async (data, router, route) => {
-  const body = {};
-
-  body["email"] = data.email;
-  body["password"] = data.password;
+  const body = {
+    email: data.email,
+    password: data.password,
+  };
 
   const root = databaseRoot(router, route);
 
-  const result = await fetch(root, {
-    method: "POST",
-    headers: {
-      "CONTENT-TYPE": "application/json",
-    },
-    body: JSON.stringify(body),
-  })
-    .then((response) => {
-      return response;
-    })
-    .catch((error) => {
-      return error;
-    });
-  return result;
+  try {
+    const response = await axios.post(root, body);
+    console.log("Response data:", response?.data?.message);
+    return response;
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      console.log(data);
+      console.log(status);
+      if (data?.message === "Referenced table not found in the database")
+        alert(`No admin with this email`);
+      else {
+        alert(`Failed to login admin: ${data?.message || "Unknown error"}`);
+      }
+    } else {
+      console.log(error);
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
 };
 
 export const searchDebounce = async (tableName, search) => {
@@ -118,12 +123,15 @@ export const submitAddAdmin = async (data) => {
 
   for (const field of requiredFields) {
     if (!data[field]) {
-      alert(`Invalid data. The field '${field}' is required and cannot be empty.`);
+      alert(
+        `Invalid data. The field '${field}' is required and cannot be empty.`
+      );
       return;
     }
   }
 
-  const baseEmail = data["FirstName"] + "_" + data["LastName"] + "@jail.admin.pk";
+  const baseEmail =
+    data["FirstName"] + "_" + data["LastName"] + "@jail.admin.pk";
   let admin_email = baseEmail;
 
   const requestData = {
@@ -145,7 +153,10 @@ export const submitAddAdmin = async (data) => {
       if (error.response) {
         const { status, data } = error.response;
 
-        if (status === HttpStatusCodes.CONFLICT && data?.data?.detail?.includes("admin_email")) {
+        if (
+          status === HttpStatusCodes.CONFLICT &&
+          data?.data?.detail?.includes("admin_email")
+        ) {
           admin_email = `${baseEmail}${index}`;
           requestData.admin_email = admin_email;
           continue;
@@ -161,6 +172,435 @@ export const submitAddAdmin = async (data) => {
   }
 };
 
+export const submitDeleteAdmin = async (data) => {
+  if (!data) {
+    alert("Invalid data.");
+    return;
+  }
+
+  const requestData = {
+    adminID: data,
+  };
+
+  const root = databaseRoot("admin", "deleteAdmin") + "?adminID=" + data;
+
+  try {
+    const response = await axios.delete(root, requestData);
+    console.log("Response data:", response?.data?.message);
+    alert("Admin deleted successfully!");
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      if (data?.message === "Referenced table not found in the database")
+        alert(`No admin with this ID`);
+      else {
+        alert(`Failed to delete admin: ${data?.message || "Unknown error"}`);
+      }
+    } else {
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
+};
+
+export const submitUpdateAdmin = async (data) => {
+  console.log("ye chlta he")
+  console.log(data);
+  if (
+    !data ||
+    typeof data !== "object" ||
+    !data["adminID"]
+  ) {
+    alert("Invalid data.");
+    return;
+  }
+
+  const requiredFields = ["adminPassword", "adminID"];
+  const missingFields = requiredFields.filter((field) => !data[field]);
+  if (missingFields.length > 0) {
+    alert(
+      `Invalid data. The field(s) '${missingFields.join(
+        ", "
+      )}' is/are required and cannot be empty.`
+    );
+    return;
+  }
+
+  const requestData = {
+    admin_password: data["adminPassword"],
+    adminID: data["adminID"],
+  };
+
+  const root = databaseRoot("admin", "updateAdmin");
+  try {
+    const response = await axios.put(root, requestData);
+    console.log("Response data:", response?.data?.message);
+    alert("Admin updated successfully!");
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      if (data?.message === "Referenced table not found in the database") alert(`No admin with this id`);
+      else {
+        alert(`Failed to update admin: ${data?.message || "Unknown error"}`);
+      }
+    } else {
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
+};
+
+export const submitAddPrisoner = async (data) => {
+  console.log("I am here");
+
+  if (!data || typeof data !== "object") {
+    alert("Invalid data.");
+    return;
+  }
+
+  const requiredFields = [
+    "Age",
+    "FirstName",
+    "LastName",
+    "dateOfBirth",
+    "dateOfCapture",
+    "gender",
+    "prisonID",
+    "prisonerID",
+    "prisonerSentence",
+    "prisonerStatus",
+    "relative_1",
+    "relative_2",
+    "dateOfRelease",
+    "prisonerCrime",
+    "nationality",
+  ];
+
+  for (const field of requiredFields) {
+    if (!data[field]) {
+      alert(
+        `Invalid data. The field '${field}' is required and cannot be empty.`
+      );
+      return;
+    }
+  }
+
+  const requestData = [
+    (prisonID = data["prisonID"]),
+    (FirstName = data["FirstName"]),
+    (LastName = data["LastName"]),
+    (dateOfBirth = data["dateOfBirth"]),
+    (prisonerAge = data["Age"]),
+    (prisonerNationality = data["nationality"]),
+    (prisonerGender = data["gender"]),
+    (dateOfCapture = data["dateOfCapture"]),
+    (dateOfRelease = data["dateOfRelease"]),
+    (prisonerStatus = data["prisonerStatus"]),
+    (prisonerCrime = data["prisonerCrime"]),
+    (prisonerSentence = data["prisonerSentence"]),
+    (relative1 = data["relative_1"]),
+    (relative2 = data["relative_2"]),
+    (prisonerID = data["prisonerID"]),
+  ];
+
+  const root = databaseRoot("admin", "addPrisoner");
+
+  try {
+    const response = await axios.post(root, requestData);
+    console.log("Response data:", response?.data?.message);
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      if (data?.message === "Duplicate entry violates unique constraint")
+        alert(`Already a prisoner with this id`);
+      else {
+        alert(`Failed to add prisoner: ${data?.message || "Unknown error"}`);
+      }
+    } else {
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
+};
+
+export const submitDeletePrisoner = async (data) => {
+  if (!data) {
+    alert("Invalid data.");
+    return;
+  }
+
+  const requestData = {
+    prisonerID: data,
+  };
+
+  console.log(requestData);
+
+  const root = databaseRoot("admin", "deletePrisoner") + "?prisonerID=" + data;
+  console.log(root);
+
+  try {
+    const response = await axios.delete(root);
+    console.log("Response data:", response?.data?.message);
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      if (data?.message === "Prisoner not found")
+        alert(`No prisoner with this id`);
+      else {
+        alert(`Failed to delete prisoner: ${data?.message || "Unknown error"}`);
+      }
+    } else {
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
+};
+
+export const submitUpdatePrisoner = async (data) => {
+  if (
+    !data ||
+    typeof data !== "object" ||
+    data.length === 0 ||
+    !data["prisonerID"]
+  ) {
+    alert("Invalid data.");
+    return;
+  }
+
+  console.log(data);
+
+  const requiredFields = [
+    "FirstName",
+    "LastName",
+    "Age",
+    "gender",
+    "Crime",
+    "Sentence",
+  ];
+
+  const requestData = {};
+
+  for (const field in data) {
+    if (field === "prisonerID") continue;
+    if (!requiredFields.includes(field)) {
+      alert(`Invalid data. The field '${field}' cannot be updated.`);
+      return;
+    }
+  }
+
+  for (const field in data) {
+    requestData[field] = data[field];
+  }
+
+  const root = databaseRoot("admin", "updatePrisoner");
+
+  try {
+    const response = await axios.put(root, requestData);
+    console.log("Response data:", response?.data?.message);
+    alert("Prisoner updated successfully!");
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      if (data?.message === "Prisoner not found")
+        alert(`No prisoner with this id`);
+      else {
+        alert(`Failed to update prisoner: ${data?.message || "Unknown error"}`);
+      }
+    } else {
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
+};
+
+export const submitAddGuard = async (data) => {
+  if (!data || typeof data !== "object") {
+    alert("Invalid data.");
+    return;
+  }
+
+  const requiredFields = [
+    "Age",
+    "FirstName",
+    "LastName",
+    "dateOfBirth",
+    "dateOfJoining",
+    "gender",
+    "prisonID",
+    "guardID",
+    "qrCode",
+    "nationality",
+    "guardShift",
+  ];
+
+  for (const field of requiredFields) {
+    if (!data[field]) {
+      alert(
+        `Invalid data. The field '${field}' is required and cannot be empty.`
+      );
+      return;
+    }
+  }
+
+  const requestData = {
+    Age: data["Age"],
+    FirstName: data["FirstName"],
+    LastName: data["LastName"],
+    dateOfBirth: data["dateOfBirth"],
+    joiningDate: data["dateOfJoining"],
+    gender: data["gender"],
+    prisonID: data["prisonID"],
+    guardID: data["guardID"],
+    qrCode: data["qrCode"],
+    nationality: data["nationality"],
+    guardShift: data["guardShift"],
+  };
+
+  const root = databaseRoot("admin", "addGuard");
+
+  try {
+    const response = await axios.post(root, requestData);
+    console.log("Response data:", response?.data?.message);
+    alert("Guard added successfully!");
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      if (data?.message === "Duplicate entry violates unique constraint")
+        alert(`Already a guard with this id`);
+      else {
+        alert(`Failed to add guard: ${data?.message || "Unknown error"}`);
+      }
+    } else {
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
+};
+
+export const submitDeleteGuard = async (data) => {
+  if (!data) {
+    alert("Invalid data.");
+    return;
+  }
+
+  const root = databaseRoot("admin", "deleteGuard") + "?guardID=" + data;
+
+  try {
+    const response = await axios.delete(root);
+    console.log("Response data:", response?.data?.message);
+    alert("Guard deleted successfully!");
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      if (data?.message === "Guard not found") alert(`No guard with this id`);
+      else {
+        alert(`Failed to delete guard: ${data?.message || "Unknown error"}`);
+      }
+    } else {
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
+};
+
+export const submitUpdateGuard = async (data) => {
+  if (
+    !data ||
+    typeof data !== "object" ||
+    data.length === 0 ||
+    !data["guardID"]
+  ) {
+    alert("Invalid data.");
+    return;
+  }
+
+  const requiredFields = ["FirstName", "LastName", "Age", "Gender", "Shift"];
+
+  const requestData = {};
+
+  for (const field in data) {
+    if (field === "guardID") continue;
+    if (!requiredFields.includes(field)) {
+      alert(`Invalid data. The field '${field}' cannot be updated.`);
+      return;
+    }
+  }
+
+  for (const field in data) {
+    requestData[field] = data[field];
+  }
+
+  const root = databaseRoot("admin", "updateGuard");
+  try {
+    const response = await axios.put(root, requestData);
+    console.log("Response data:", response?.data?.message);
+    alert("Guard updated successfully!");
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      if (data?.message === "Guard not found") alert(`No guard with this id`);
+      else {
+        alert(`Failed to update guard: ${data?.message || "Unknown error"}`);
+      }
+    } else {
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
+};
+
+export const submitAddPrison = async (data) => {
+  if (!data || typeof data !== "object" || data.length === 0) {
+    alert("Invalid data.");
+    return;
+  }
+  const requiredFields = ["prisonName", "prisonLocation"];
+  for (const field of requiredFields) {
+    if (!data[field]) {
+      alert(
+        `Invalid data. The field '${field}' is required and cannot be empty.`
+      );
+      return;
+    }
+  }
+  const requestData = {
+    prisonName: data["prisonName"],
+    prisonLocation: data["prisonLocation"],
+  };
+  const root = databaseRoot("admin", "addPrison");
+  try {
+    const response = await axios.post(root, requestData);
+    console.log("Response data:", response?.data?.message);
+    alert("Prison added successfully!");
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      if (data?.message === "Duplicate entry violates unique constraint")
+        alert(`Already a prison with this name`);
+      else {
+        alert(`Failed to add prison: ${data?.message || "Unknown error"}`);
+      }
+    } else {
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
+};
+
+export const submitDeletePrison = async (data) => {
+  if (!data) {
+    alert("Invalid data.");
+    return;
+  }
+
+  const root = databaseRoot("admin", "deletePrison") + "?prisonID=" + data;
+  try {
+    const response = await axios.delete(root);
+    console.log("Response data:", response?.data?.message);
+    alert("Prison deleted successfully!");
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      if (data?.message === "Prison not found") alert(`No prison with this id`);
+      else {
+        alert(`Failed to delete prison: ${data?.message || "Unknown error"}`);
+      }
+    } else {
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
+};
 
 export const HttpStatusCodes = Object.freeze({
   // 200 - Success

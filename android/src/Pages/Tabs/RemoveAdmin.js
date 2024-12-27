@@ -8,13 +8,12 @@ import {
 import CustomBR from "../../Custom/customBR";
 import { TextInput } from "react-native-paper";
 import { AdminAddPrisonerStyle, centre } from "../../Styles/AdminStyling";
-import _ from "lodash";
 import CustomButtonSelector from "../../Custom/CustomButtonSelector";
 import CustomSubmit from "../../Custom/CustomSubmit";
-import { submitDeletePrisoner } from "../../Functions/Functions";
+import { submitDeleteAdmin } from "../../Functions/Functions";
 
-const RemovePrisoner = ({ buttonLabels = ["PrisonerID"] }) => {
-  const [removeBasedOn, setRemoveBasedOn] = useState("PrisonerID");
+const RemoveAdmin = ({ buttonLabels = ["adminID"] }) => {
+  const [removeBasedOn, setRemoveBasedOn] = useState("adminID");
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleChange = (text) => {
@@ -33,10 +32,10 @@ const RemovePrisoner = ({ buttonLabels = ["PrisonerID"] }) => {
             outlineStyle={AdminAddPrisonerStyle.inputBorderStyle}
             style={[AdminAddPrisonerStyle.input]}
             mode="outlined"
-            placeholder="Enter the prisoner ID"
+            placeholder="Enter the admin ID"
             outlineColor="blue"
             activeOutlineColor="red"
-            label={"prisonerID"}
+            label={"adminID"}
             value={searchQuery}
             onChangeText={handleChange}
           />
@@ -48,11 +47,11 @@ const RemovePrisoner = ({ buttonLabels = ["PrisonerID"] }) => {
               setSelectedState={setRemoveBasedOn}
             />
           </View>
-          <CustomSubmit callback={submitDeletePrisoner} data={searchQuery} />
+          <CustomSubmit callback={submitDeleteAdmin} data={searchQuery} />
         </View>
       </ScrollView>
     </TouchableWithoutFeedback>
   );
 };
 
-export default RemovePrisoner;
+export default RemoveAdmin;

@@ -23,10 +23,10 @@ client.connect(function (err) {
     console.log("An Error has occurred");
     console.error(err);
   } else {
-    console.log("data base is horny 😈");
+    console.log("Data Base Connected 😊");
     app.listen(
       process.env.PORT,
-      console.log(`Server is wet 💦 ${process.env.PORT}%`)
+      console.log(`Server is running at PORT ${process.env.PORT} 🫠`)
     );
   }
 });

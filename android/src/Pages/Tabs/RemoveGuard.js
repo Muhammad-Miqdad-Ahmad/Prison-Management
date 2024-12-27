@@ -11,10 +11,10 @@ import { AdminAddPrisonerStyle, centre } from "../../Styles/AdminStyling";
 import _ from "lodash";
 import CustomButtonSelector from "../../Custom/CustomButtonSelector";
 import CustomSubmit from "../../Custom/CustomSubmit";
-import { submitDeletePrisoner } from "../../Functions/Functions";
+import { submitDeleteGuard } from "../../Functions/Functions";
 
-const RemovePrisoner = ({ buttonLabels = ["PrisonerID"] }) => {
-  const [removeBasedOn, setRemoveBasedOn] = useState("PrisonerID");
+const RemoveGuard = ({ buttonLabels = ["guardID"] }) => {
+  const [removeBasedOn, setRemoveBasedOn] = useState("guardID");
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleChange = (text) => {
@@ -33,10 +33,10 @@ const RemovePrisoner = ({ buttonLabels = ["PrisonerID"] }) => {
             outlineStyle={AdminAddPrisonerStyle.inputBorderStyle}
             style={[AdminAddPrisonerStyle.input]}
             mode="outlined"
-            placeholder="Enter the prisoner ID"
+            placeholder="Enter the guard ID"
             outlineColor="blue"
             activeOutlineColor="red"
-            label={"prisonerID"}
+            label={"guardID"}
             value={searchQuery}
             onChangeText={handleChange}
           />
@@ -48,11 +48,11 @@ const RemovePrisoner = ({ buttonLabels = ["PrisonerID"] }) => {
               setSelectedState={setRemoveBasedOn}
             />
           </View>
-          <CustomSubmit callback={submitDeletePrisoner} data={searchQuery} />
+          <CustomSubmit callback={submitDeleteGuard} data={searchQuery} />
         </View>
       </ScrollView>
     </TouchableWithoutFeedback>
   );
 };
 
-export default RemovePrisoner;
+export default RemoveGuard;

@@ -1,20 +1,18 @@
 import { View, Text } from "react-native";
 import React from "react";
 import CustomBR from "../../Custom/customBR";
-import { RadioButton, TextInput } from "react-native-paper";
+import { RadioButton } from "react-native-paper";
 import {
   AdminAddPrisonerStyle,
   ButtonStyles,
   centre,
 } from "../../Styles/AdminStyling";
 import { ScrollView } from "react-native-gesture-handler";
-import { textInputForMenu } from "../../Functions/Functions";
+import { submitUpdateGuard, textInputForMenu } from "../../Functions/Functions";
 import CustomSubmit from "../../Custom/CustomSubmit";
-import { submitUpdatePrisoner } from "../../Functions/Functions";
 import CustomTextInput from "../../Custom/CustomTextinput";
 
-const UpdatePrisoner = () => {
-  const [checked, setChecked] = React.useState("");
+const UpdateGuard = () => {
   const [data, setData] = React.useState({});
   return (
     <ScrollView>
@@ -22,12 +20,12 @@ const UpdatePrisoner = () => {
         <CustomTextInput
           outlineColor="#d6c50b"
           activeOutlineColor="red"
-          label="prisonerID"
+          label="guardID"
           data={data}
           setData={setData}
           keyboardType="numeric"
         >
-          {"Enter the ID of the prisoner you want to update the data of"}
+          {"Enter the ID of the guard you want to update the data of"}
         </CustomTextInput>
         <CustomBR />
         <CustomTextInput
@@ -37,7 +35,7 @@ const UpdatePrisoner = () => {
           data={data}
           setData={setData}
         >
-          {"Enter the first name of the prisoner"}
+          {"Enter the first name of the guard"}
         </CustomTextInput>
         <CustomBR />
         <CustomTextInput
@@ -47,7 +45,7 @@ const UpdatePrisoner = () => {
           data={data}
           setData={setData}
         >
-          {"Enter the last name of the prisoner"}
+          {"Enter the last name of the guard"}
         </CustomTextInput>
         <CustomBR />
         <CustomTextInput
@@ -58,10 +56,10 @@ const UpdatePrisoner = () => {
           setData={setData}
           keyboardType="numeric"
         >
-          {"Enter the age of the prisoner"}
+          {"Enter the age of the guard"}
         </CustomTextInput>
         <CustomBR />
-        {textInputForMenu("Gender of the prisoner")}
+        {textInputForMenu("Gender of the guard")}
         <View style={AdminAddPrisonerStyle.radioContainer}>
           <View style={[AdminAddPrisonerStyle.radio, centre.centre]}>
             <Text style={AdminAddPrisonerStyle.text}>Male</Text>
@@ -89,30 +87,20 @@ const UpdatePrisoner = () => {
         <CustomTextInput
           outlineColor="#d6c50b"
           activeOutlineColor="red"
-          label="Crime"
+          label="guardShift"
           data={data}
           setData={setData}
         >
-          {"Enter the crime of the prisoner"}
-        </CustomTextInput>
-        <CustomBR />
-        <CustomTextInput
-          outlineColor="#d6c50b"
-          activeOutlineColor="red"
-          label="Sentence"
-          data={data}
-          setData={setData}
-        >
-          {"Enter the sentence of the prisoner"}
+          {"Enter the shift of the prisoner"}
         </CustomTextInput>
         <CustomBR />
 
         <View style={ButtonStyles.buttonContainer}>
-          <CustomSubmit data={data} callback={submitUpdatePrisoner} />
+          <CustomSubmit data={data} callback={submitUpdateGuard} />
         </View>
       </View>
     </ScrollView>
   );
 };
 
-export default UpdatePrisoner;
+export default UpdateGuard;

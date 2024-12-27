@@ -11,12 +11,11 @@ import {
 } from "react-native";
 import React from "react";
 import { LoginStyles, centre } from "../Styles/AdminStyling";
-import { onBackPress, postData } from "../Functions/Functions";
+import { HttpStatusCodes, onBackPress, postData } from "../Functions/Functions";
 import Icon from "react-native-vector-icons/FontAwesome";
 import Loader from "../Loader";
 import { addAdminData } from "../Redux/Actions/AdminActions";
 import { useDispatch } from "react-redux";
-import { changeMode } from "../Redux/Actions/Actions"; // for night mode
 
 const LoginPage = ({ navigation }) => {
   
@@ -36,31 +35,33 @@ const LoginPage = ({ navigation }) => {
   }
 
   const loginSubmit = async () => {
-    // let loginResponse;
-    // if (
-    //   loginData?.email &&
-    //   loginData?.email != "" &&
-    //   loginData?.password &&
-    //   loginData?.password != ""
-    // ) {
-    //   Keyboard.dismiss();
-    //   setIsLoading(true);
-    //   loginResponse = await postData(loginData, "admin", "login");
-    // } else {
-    //   Alert.alert("Please enter some data", null, [], { cancelable: true });
-    //   return;
-    // }
+    let loginResponse;
+    if (
+      loginData?.email &&
+      loginData?.email != "" &&
+      loginData?.password &&
+      loginData?.password != ""
+    ) {
+      Keyboard.dismiss();
+      setIsLoading(true);
+      loginResponse = await postData(loginData, "admin", "login");
+    } else {
+      Alert.alert("Please enter some data", null, [], { cancelable: true });
+      return;
+    }
 
-    // setIsLoading(false);
+    setIsLoading(false);
     // const message = await loginResponse.json();
-    // if (loginResponse?.ok) {
-    //   dispatchAdminData(addAdminData(message.data[0]));
-    //   navigation.navigate("AdminDrawer");
-    // } else {
-    //   Alert.alert(`${loginResponse.status} \n${message.message}`, null, [], {
-    //     cancelable: true,
-    //   });
-    // }
+    console.log(loginResponse.data.data);
+    if (loginResponse?.status === HttpStatusCodes.OK) {
+      console.log("message.Yhan aata he");
+      dispatchAdminData(addAdminData(loginResponse.data.data));
+      navigation.navigate("AdminDrawer");
+    } else {
+      Alert.alert(`${loginResponse.status} \n${message.message}`, null, [], {
+        cancelable: true,
+      });
+    }
     navigation.navigate("AdminDrawer");
     setLoginData({ email: "", password: "" });
   };
