@@ -353,13 +353,13 @@ const UpdateGuard = async (req, res) => {
 };
 
 const UpdateAdmin = async (req, res) => {
-  const { admin_email, admin_password } = req.body;
+  const { admin_password } = req.body;
 
-  const requiredFields = { admin_email, admin_password };
+  const requiredFields = { admin_password };
 
   return generic_update(
     res,
-    "admin",
+    "admins",
     "admin_id",
     req.body.adminID,
     requiredFields,

@@ -7,8 +7,6 @@ import AlterTabs from "../Tabs/AlterTabs";
 import GenericTab from "../Tabs/GenericTab";
 
 import AddPersonData from "../AddData";
-import UpdateData from "../UpdateData";
-import RemovePerson from "../RemoveData";
 import { useSelector } from "react-redux";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 
@@ -23,12 +21,14 @@ import RemoveGuard from "../Tabs/RemoveGuard";
 import UpdateGuard from "../Tabs/UpdateGuard";
 import AddPrison from "../Tabs/AddPrison";
 import RemovePrison from "../Tabs/RemovePrison";
+import RemoveAdmin from "../Tabs/RemoveAdmin";
+import UpdateAdmin from "../Tabs/UpdateAdmin";
 
 LogBox.ignoreLogs([
   "Non-serializable values were found in the navigation state",
 ]);
 
-const AdminDrawer = ({ navigation }) => {
+const AdminDrawer = () => {
 
   const Drawer = createDrawerNavigator();
   const adminData = useSelector((state) => state.admin.adminData);
@@ -118,7 +118,7 @@ const AdminDrawer = ({ navigation }) => {
       text: "Remove",
       route: GenericTab,
       iconName: "trash",
-      component: [<RemovePerson />],
+      component: [<RemoveAdmin />],
       componentText: [""],
       barColor: "red",
       activeIconColor: "#FFFFFF",
@@ -128,7 +128,7 @@ const AdminDrawer = ({ navigation }) => {
       text: "Update",
       route: GenericTab,
       iconName: "edit",
-      component: [<UpdateData />],
+      component: [<UpdateAdmin />],
       componentText: [""],
       barColor: "yellow",
       activeIconColor: "#000000",
@@ -156,16 +156,6 @@ const AdminDrawer = ({ navigation }) => {
       activeIconColor: "#FFFFFF",
       callBack: console.log,
     },
-    // {
-    //   text: "Update",
-    //   route: GenericTab,
-    //   iconName: "edit",
-    //   component: [<UpdateData />],
-    //   componentText: [""],
-    //   barColor: "yellow",
-    //   activeIconColor: "#000000",
-    //   callBack: console.log,
-    // },
   ];
 
   return (

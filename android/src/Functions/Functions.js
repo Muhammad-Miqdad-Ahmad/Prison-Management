@@ -167,6 +167,82 @@ export const submitAddAdmin = async (data) => {
   }
 };
 
+export const submitDeleteAdmin = async (data) => {
+  if (!data) {
+    alert("Invalid data.");
+    return;
+  }
+
+  const requestData = {
+    adminID: data,
+  };
+
+  const root = databaseRoot("admin", "deleteAdmin") + "?adminID=" + data;
+
+  try {
+    const response = await axios.delete(root, requestData);
+    console.log("Response data:", response?.data?.message);
+    alert("Admin deleted successfully!");
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      if (data?.message === "Referenced table not found in the database")
+        alert(`No admin with this ID`);
+      else {
+        alert(`Failed to delete admin: ${data?.message || "Unknown error"}`);
+      }
+    } else {
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
+};
+
+export const submitUpdateAdmin = async (data) => {
+  console.log("ye chlta he")
+  console.log(data);
+  if (
+    !data ||
+    typeof data !== "object" ||
+    !data["adminID"]
+  ) {
+    alert("Invalid data.");
+    return;
+  }
+
+  const requiredFields = ["adminPassword", "adminID"];
+  const missingFields = requiredFields.filter((field) => !data[field]);
+  if (missingFields.length > 0) {
+    alert(
+      `Invalid data. The field(s) '${missingFields.join(
+        ", "
+      )}' is/are required and cannot be empty.`
+    );
+    return;
+  }
+
+  const requestData = {
+    admin_password: data["adminPassword"],
+    adminID: data["adminID"],
+  };
+
+  const root = databaseRoot("admin", "updateAdmin");
+  try {
+    const response = await axios.put(root, requestData);
+    console.log("Response data:", response?.data?.message);
+    alert("Admin updated successfully!");
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      if (data?.message === "Referenced table not found in the database") alert(`No admin with this id`);
+      else {
+        alert(`Failed to update admin: ${data?.message || "Unknown error"}`);
+      }
+    } else {
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
+};
+
 export const submitAddPrisoner = async (data) => {
   console.log("I am here");
 
@@ -508,21 +584,18 @@ export const submitDeletePrison = async (data) => {
     const response = await axios.delete(root);
     console.log("Response data:", response?.data?.message);
     alert("Prison deleted successfully!");
-  }
-  catch (error) {
+  } catch (error) {
     if (error.response) {
       const { status, data } = error.response;
       if (data?.message === "Prison not found") alert(`No prison with this id`);
       else {
         alert(`Failed to delete prison: ${data?.message || "Unknown error"}`);
       }
-    }
-    else {
+    } else {
       alert("An unexpected error occurred. Please try again later.");
     }
   }
 };
-
 
 export const HttpStatusCodes = Object.freeze({
   // 200 - Success
