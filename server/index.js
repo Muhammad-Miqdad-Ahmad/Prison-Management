@@ -1,6 +1,7 @@
 const express = require("express");
 const client = require("./Connections/Connections");
 require("dotenv").config();
+const cors = require('cors');
 
 const AdminRouter = require("./routes/AdminRoutes");
 const GuardRouter = require("./routes/GuardRoutes");
@@ -10,6 +11,7 @@ const PrisonerRouter = require("./routes/PrisonerRoutes");
 const app = express();
 
 app.use(express.json());
+app.use(cors());
 
 app.use("/guard", GuardRouter);
 app.use("/admin", AdminRouter);
