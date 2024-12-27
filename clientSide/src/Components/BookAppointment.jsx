@@ -19,7 +19,6 @@ const BookAppointment = () => {
     const fetchData = async () => {
       try {
         const prisonersResponse = await axios.get(`http://localhost:9000/visitor/getPrisonerData?visitorId=${visitorId}`);
-        console.log("Prisoners: ", prisonersResponse.data);
         const slotsResponse = await axios.get('http://localhost:9000/visitor/visitingSlots');
         const appointmentsResponse = await axios.get(`http://localhost:9000/visitor/appointments?visitorId=${visitorId}`);
 
@@ -83,7 +82,7 @@ const BookAppointment = () => {
 
       if (response.data.success) {
         alert('Appointment booked successfully!');
-        navigate('/welcome');
+        navigate('/');
       } else {
         setError(response.data.message || 'Failed to book appointment.');
       }
@@ -91,6 +90,11 @@ const BookAppointment = () => {
       console.error('Error booking appointment:', error);
       setError('An error occurred while booking the appointment.');
     }
+  };
+
+  const formatTime = (timeString) => {
+    const [hours, minutes, seconds] = timeString.split(':');
+    return `${hours}:${minutes}`;
   };
 
   return (
@@ -139,7 +143,7 @@ const BookAppointment = () => {
               <option value="">Select a visiting slot</option>
               {visitingSlots.map((slot) => (
                 <option key={slot.slot_id} value={slot.slot_id}>
-                  {`${slot.slot_time} - Capacity: ${slot.capacity}`}
+                  {`${slot.day_of_week} - ${slot.start_time} to ${slot.end_time} - Capacity: ${slot.capacity}`}
                 </option>
               ))}
             </select>
@@ -165,7 +169,7 @@ const BookAppointment = () => {
                   <strong>Prisoner:</strong> {`${appointment.person.first_name} ${appointment.person.last_name}`}<br />
                   <strong>Slot Time:</strong> {appointment.slot_time}<br />
                   <strong>Visit Date:</strong> {new Date(appointment.visit_date).toLocaleDateString()}<br />
-                  <strong>Reservation Time:</strong> {new Date(appointment.reservation_time).toLocaleTimeString()}
+                  <strong>Reservation Time:</strong> {formatTime(appointment.reservation_time)}
                 </li>
               ))}
             </ul>
